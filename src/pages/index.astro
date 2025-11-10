@@ -1,0 +1,243 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+const currentYear = new Date().getFullYear();
+---
+
+<BaseLayout title="angus.dev - Angus Lam">
+  <div class="page-wrapper">
+    <div class="hero-section">
+      <div class="hero-ascii-art">
+        <pre>
+                                              █
+                                              █
+                                              █
+░███░  █▒██▒   ██▓█  █   █  ▒███▒          ██▓█   ███   █░ ░█
+█▒ ▒█  █▓ ▒█  █▓ ▓█  █   █  █▒ ░█         █▓ ▓█  ▓▓ ▒█  ▓▒ ▒▓
+    █  █   █  █   █  █   █  █▒░           █   █  █   █  ▒█ █▒
+▒████  █   █  █   █  █   █  ░███▒         █   █  █████   █ █
+█▒  █  █   █  █   █  █   █     ▒█         █   █  █       █▓█
+█░ ▓█  █   █  █▓ ▓█  █▒ ▓█  █░ ▒█         █▓ ▓█  ▓▓  █   ▒█▒
+▒██▒█  █   █   ██▒█  ▒██▒█  ▒███▒    █     ██▓    ███▒   ░█░
+                  █
+               ▓ ▒█
+               ▒██░</pre>
+      </div>
+      <div class="hero-description">
+        <p>
+          <span class="monospace-label">Work with me</span>
+        </p>
+        <p>
+          I'm open to collaborating on projects of all shapes, sizes, duration,
+          and budget. Concepts with a strong personal fit get priority.
+        </p>
+        <p>
+          Please reach out to me on <a
+            href="https://linkedin.com/in/angushtlam"
+            target="_blank">LinkedIn</a
+          > with what you have in mind.
+        </p>
+      </div>
+    </div>
+    <div class="content-section">
+      <div class="content">
+        <p>
+          <span class="monospace-label">Bottom line up front</span>
+        </p>
+        <p>
+          Angus Lam is a New York-based senior software engineer with over a
+          decade of programming experience. He specializes in building useful
+          technology-enabled products with aesthetically consistent and
+          delightful experiences.
+        </p>
+        <p>
+          Currently at <a href="https://stripe.com">Stripe</a> as an application
+          security engineer building privacy user products.
+        </p>
+        <p>
+          Computer Science B.S. and Linguistics B.A. at <a
+            href="https://www.buffalo.edu/ubit/about.host.html/content/shared/www/ubit/public/modules/faces-and-voices/angus-lam.detail.html"
+            target="_blank">University at Buffalo</a
+          >. <em>Go Bills.</em>
+        </p>
+        <p>
+          <span class="monospace-label">Experience</span>
+        </p>
+        <p>
+          My skills include full-stack software development, product design, and
+          project management. I worked at technology startups of sizes large and
+          small in San Francisco, New York, and Buffalo. I built software from
+          zero-to-one MVPs to scalable enterprise grade features.
+        </p>
+        <div>
+          <div class="experience-item">
+            <div class="experience-date">2019-Now</div>
+            <div>
+              <p>Stripe — Software Engineer, Privacy Products</p>
+              <ul>
+                <li>
+                  Designed and executed complex engineering initiatives on
+                  application security and privacy as project lead ("DRI") from
+                  solo to a working group of five engineers with levels from new
+                  grads to senior.
+                </li>
+                <li>
+                  Notable projects include <a
+                    href="https://privacy.stripe.com"
+                    target="_blank">Privacy Portal</a
+                  >, <a
+                    href="https://docs.stripe.com/privacy/redaction"
+                    target="_blank">Redaction API</a
+                  >, "India Data Locality" multi-region user account performance
+                  optimizations, Stripe's Next architecture application level
+                  rewrite for API key authentication.
+                </li>
+                <li>
+                  Completed security reviews and UI/UX implementation reviews
+                  for product launches.
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="experience-item">
+            <div class="experience-date">2018-2019</div>
+            <div>
+              <p>Lugg — Software Engineer</p>
+            </div>
+          </div>
+          <div class="experience-item">
+            <div class="experience-date">2017-2018</div>
+            <div>
+              <p>Pivot + Pivot — Software Engineer</p>
+            </div>
+          </div>
+          <div class="experience-item">
+            <div class="experience-date">2016</div>
+            <div>
+              <p>interactiveX, inc. — Software Engineer</p>
+            </div>
+          </div>
+          <div class="experience-item">
+            <div class="experience-date">2012-2016</div>
+            <div>
+              <p>Independent game developer</p>
+            </div>
+          </div>
+          <p>
+            <span class="monospace-label">More about me</span>
+          </p>
+          <p>
+            You can find my personal website at <a
+              href="https://anguslam.com"
+              target="_blank">anguslam.com</a
+            >.
+          </p>
+          <p>© angus.dev - Angus Lam 2017 - {currentYear}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .page-wrapper {
+      display: flex;
+      height: 100vh;
+      overflow-y: auto;
+      scroll-snap-type: none;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-section {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 33.33%;
+      height: 100vh;
+      flex-shrink: 0;
+      min-width: min-content;
+    }
+
+    .hero-ascii-art pre {
+      line-height: 1.4;
+      font-family: "Lucida Console", "Courier New", monospace;
+      font-size: 11px;
+      font-weight: bold;
+      margin: 0;
+      padding: 60px 20px 20px 20px;
+    }
+
+    .hero-description {
+      margin: 0 20px;
+      padding: 20px 0;
+      border-top: 1px solid #aaa;
+    }
+
+    .content-section {
+      min-height: 100vh;
+    }
+
+    .content {
+      background: rgba(0, 0, 0, 0.33);
+      min-height: 100%;
+      padding: 20px;
+    }
+
+    p {
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      padding-left: 20px;
+      line-height: 1.6;
+    }
+
+    .experience-item {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .experience-item p {
+      margin: 0;
+    }
+
+    .experience-date {
+      font-family: "Lucida Console", "Courier New", monospace;
+      font-weight: bold;
+      margin-right: 20px;
+      min-width: 100px;
+      white-space: nowrap;
+      margin-top: 4px;
+    }
+
+    @media screen and (max-width: 768px) {
+      .page-wrapper {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+      }
+
+      .hero-section {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
+
+      .content-section {
+        margin-left: 0;
+        width: 100%;
+        height: auto;
+        overflow-y: visible;
+      }
+
+      .content {
+      }
+
+      .hero-ascii-art pre {
+        font-size: 6px;
+        margin: 0;
+        padding: 40px 20px;
+      }
+    }
+  </style>
+</BaseLayout>

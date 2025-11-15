@@ -1,0 +1,87 @@
+<a class="hero-ascii-art" href="/">
+  <pre>
+                                              █
+                                              █
+                                              █
+░███░  █▒██▒   ██▓█  █   █  ▒███▒          ██▓█   ███   █░ ░█
+█▒ ▒█  █▓ ▒█  █▓ ▓█  █   █  █▒ ░█         █▓ ▓█  ▓▓ ▒█  ▓▒ ▒▓
+    █  █   █  █   █  █   █  █▒░           █   █  █   █  ▒█ █▒
+▒████  █   █  █   █  █   █  ░███▒         █   █  █████   █ █
+█▒  █  █   █  █   █  █   █     ▒█         █   █  █       █▓█
+█░ ▓█  █   █  █▓ ▓█  █▒ ▓█  █░ ▒█         █▓ ▓█  ▓▓  █   ▒█▒
+▒██▒█  █   █   ██▒█  ▒██▒█  ▒███▒    █     ██▓    ███▒   ░█░
+                  █
+               ▓ ▒█
+               ▒██░</pre>
+</a>
+
+<style>
+  .hero-ascii-art {
+    text-decoration: none;
+  }
+
+  .hero-ascii-art pre {
+    line-height: 1.4;
+    font-family: "Lucida Console", "Courier New", monospace;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0;
+    padding: 60px 20px 20px 20px;
+  }
+
+  @keyframes fadeInOut {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.15;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @media screen and (min-width: 768px) and (max-width: 1200px) {
+    .hero-ascii-art pre {
+      font-size: 8px;
+      margin: 0;
+      padding: 40px 20px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .hero-ascii-art pre {
+      font-size: 8px;
+      margin: 0;
+      padding: 40px 20px;
+    }
+  }
+</style>
+
+<script>
+  // Wrap each character in the ASCII art with a span for individual animation
+  const asciiArt = document.querySelector(".hero-ascii-art pre");
+  if (asciiArt) {
+    const text = asciiArt.textContent;
+    asciiArt.textContent = "";
+
+    // Create a span for each character with staggered animation delay based on line
+    let lineIndex = 0;
+    text.split("").forEach((char, index) => {
+      const span = document.createElement("span");
+      span.textContent = char;
+
+      // Calculate staggered delay based on line number (vertical position)
+      const delay = lineIndex / 0.5 + index * 5;
+      span.style.animation = "fadeInOut 5s linear infinite";
+      span.style.animationDelay = `-${delay}ms`;
+
+      asciiArt.appendChild(span);
+
+      // Track which line we're on (increment after setting delay)
+      if (char === "\n") {
+        lineIndex++;
+      }
+    });
+  }
+</script>

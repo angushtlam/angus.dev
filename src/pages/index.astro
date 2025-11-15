@@ -1,31 +1,17 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import HeroAsciiArt from "../components/HeroAsciiArt.astro";
 const currentYear = new Date().getFullYear();
 ---
 
 <BaseLayout title="angus.dev - Angus Lam">
   <div class="page-wrapper">
     <div class="hero-section">
-      <div class="hero-ascii-art">
-        <pre>
-                                              █
-                                              █
-                                              █
-░███░  █▒██▒   ██▓█  █   █  ▒███▒          ██▓█   ███   █░ ░█
-█▒ ▒█  █▓ ▒█  █▓ ▓█  █   █  █▒ ░█         █▓ ▓█  ▓▓ ▒█  ▓▒ ▒▓
-    █  █   █  █   █  █   █  █▒░           █   █  █   █  ▒█ █▒
-▒████  █   █  █   █  █   █  ░███▒         █   █  █████   █ █
-█▒  █  █   █  █   █  █   █     ▒█         █   █  █       █▓█
-█░ ▓█  █   █  █▓ ▓█  █▒ ▓█  █░ ▒█         █▓ ▓█  ▓▓  █   ▒█▒
-▒██▒█  █   █   ██▒█  ▒██▒█  ▒███▒    █     ██▓    ███▒   ░█░
-                  █
-               ▓ ▒█
-               ▒██░</pre>
-      </div>
+      <HeroAsciiArt />
       <div class="hero-description">
-        <p>
-          <span class="monospace-label">Work with me</span>
-        </p>
+        <div class="monospace-label">
+          <span>Work with me</span>
+        </div>
         <p>
           I'm open to collaborating on projects of all shapes, sizes, duration,
           and budget. Concepts with a strong personal fit get priority.
@@ -40,9 +26,9 @@ const currentYear = new Date().getFullYear();
     </div>
     <div class="content-section">
       <div class="content">
-        <p>
-          <span class="monospace-label">Bottom line up front</span>
-        </p>
+        <div class="monospace-label">
+          <span>Bottom line up front</span>
+        </div>
         <p>
           Angus Lam is a New York-based senior software engineer with over a
           decade of programming experience. He specializes in building useful
@@ -59,9 +45,9 @@ const currentYear = new Date().getFullYear();
             target="_blank">University at Buffalo</a
           >. <em>Go Bills.</em>
         </p>
-        <p>
-          <span class="monospace-label">Experience</span>
-        </p>
+        <div class="monospace-label">
+          <span>Experience</span>
+        </div>
         <p>
           My skills include full-stack software development, product design, and
           project management. I worked at technology startups of sizes large and
@@ -70,7 +56,7 @@ const currentYear = new Date().getFullYear();
         </p>
         <div>
           <div class="experience-item">
-            <div class="experience-date">2019-Now</div>
+            <div class="experience-date">2019-Now…</div>
             <div>
               <p>Stripe — Software Engineer, Privacy Products</p>
               <ul>
@@ -111,19 +97,15 @@ const currentYear = new Date().getFullYear();
             </div>
           </div>
           <div class="experience-item">
-            <div class="experience-date">2016</div>
-            <div>
-              <p>interactiveX, inc. — Software Engineer</p>
-            </div>
-          </div>
-          <div class="experience-item">
             <div class="experience-date">2012-2016</div>
             <div>
               <p>Independent game developer</p>
             </div>
           </div>
           <p>
-            <span class="monospace-label">More about me</span>
+            <div class="monospace-label">
+              <span>More about me</span>
+            </div>
           </p>
           <p>
             You can find my personal website at <a
@@ -145,6 +127,7 @@ const currentYear = new Date().getFullYear();
       scroll-snap-type: none;
       max-width: 1200px;
       margin: 0 auto;
+      gap: 40px;
     }
 
     .hero-section {
@@ -157,19 +140,9 @@ const currentYear = new Date().getFullYear();
       min-width: min-content;
     }
 
-    .hero-ascii-art pre {
-      line-height: 1.4;
-      font-family: "Lucida Console", "Courier New", monospace;
-      font-size: 11px;
-      font-weight: bold;
-      margin: 0;
-      padding: 60px 20px 20px 20px;
-    }
-
     .hero-description {
       margin: 0 20px;
       padding: 20px 0;
-      border-top: 1px solid #aaa;
     }
 
     .content-section {
@@ -177,9 +150,12 @@ const currentYear = new Date().getFullYear();
     }
 
     .content {
-      background: rgba(0, 0, 0, 0.33);
       min-height: 100%;
       padding: 20px;
+    }
+
+    .content .monospace-label {
+      margin-top: 20px;
     }
 
     p {
@@ -202,12 +178,21 @@ const currentYear = new Date().getFullYear();
     }
 
     .experience-date {
-      font-family: "Lucida Console", "Courier New", monospace;
+      background-color: #aaa;
+      color: #000080;
+      display: inline-block;
+      font-family: "Courier New", Courier, monospace;
       font-weight: bold;
+      padding: 2px 4px;
       margin-right: 20px;
-      min-width: 100px;
       white-space: nowrap;
       margin-top: 4px;
+    }
+
+    @media screen and (min-width: 768px) and (max-width: 1200px) {
+      .page-wrapper {
+        gap: 20px;
+      }
     }
 
     @media screen and (max-width: 768px) {
@@ -215,12 +200,18 @@ const currentYear = new Date().getFullYear();
         flex-direction: column;
         height: auto;
         overflow: visible;
+        gap: 0;
       }
 
       .hero-section {
         position: relative;
         width: 100%;
         height: auto;
+      }
+
+      .hero-description {
+        margin: 0 20px;
+        padding: 0;
       }
 
       .content-section {
@@ -231,12 +222,7 @@ const currentYear = new Date().getFullYear();
       }
 
       .content {
-      }
-
-      .hero-ascii-art pre {
-        font-size: 6px;
-        margin: 0;
-        padding: 40px 20px;
+        padding: 0 20px;
       }
     }
   </style>

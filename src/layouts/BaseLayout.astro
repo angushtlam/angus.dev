@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import "../styles/crt.css";
 import Favicon from "../assets/favicon.ico";
 
 interface Props {
@@ -18,9 +19,126 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Copse&display=swap"
+      rel="stylesheet"
+    />
     {description && <meta name="description" content={description} />}
   </head>
   <body>
-    <slot />
+    <div class="crt outer-container">
+      <div class="monitor-container">
+        <div class="bezel bezel-top"></div>
+        <div class="bezel bezel-bottom"></div>
+        <div class="bezel bezel-left"></div>
+        <div class="bezel bezel-right"></div>
+        <main class="screen">
+          <slot />
+        </main>
+      </div>
+    </div>
   </body>
 </html>
+
+<style>
+  .outer-container {
+    align-items: center;
+    background: #222;
+    background: linear-gradient(#131313, #0f0f0f);
+    display: flex;
+    height: 100%;
+    height: 100vh;
+    height: 100dvh;
+    justify-content: center;
+  }
+
+  .monitor-container {
+    height: 100%;
+    position: relative;
+    width: 100%;
+  }
+
+  @media (orientation: portrait) and (min-width: 500px) {
+    .monitor-container {
+      aspect-ratio: 3 / 4;
+      height: inherit;
+      max-height: 95vh;
+      max-width: 95vw;
+      width: inherit;
+    }
+  }
+
+  @media (orientation: landscape) and (min-height: 600px) {
+    .monitor-container {
+      aspect-ratio: 4 / 3;
+      height: inherit;
+      max-height: 95vh;
+      max-width: 95vw;
+      width: inherit;
+    }
+  }
+
+  .bezel {
+    background: #000080;
+    border-radius: 50%;
+    position: absolute;
+  }
+
+  .bezel-top {
+    height: 20px;
+    left: 0;
+    top: -10px;
+    width: 100%;
+  }
+
+  .bezel-bottom {
+    bottom: -10px;
+    height: 20px;
+    left: 0;
+    width: 100%;
+  }
+
+  .bezel-left {
+    height: 100%;
+    left: -10px;
+    top: 0;
+    width: 20px;
+  }
+
+  .bezel-right {
+    bottom: 0px;
+    height: 100%;
+    right: -10px;
+    width: 20px;
+  }
+
+  @media (orientation: portrait) and (max-width: 499px) {
+    .bezel {
+      display: none;
+    }
+  }
+
+  @media (orientation: landscape) and (max-height: 599px) {
+    .bezel {
+      display: none;
+    }
+  }
+
+  .screen {
+    background: #000080;
+    color: #c3cacc;
+    display: flex;
+    height: 100%;
+    overflow: auto;
+    padding: 10px;
+    position: relative;
+    width: 100%;
+  }
+
+  .footer-container {
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+</style>

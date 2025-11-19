@@ -6,8 +6,12 @@ body {
   font-optical-sizing: auto;
 }
 
+body {
+  color: #c3cacc;
+}
+
 a {
-  color: inherit;
+  color: #61b2ff;
 }
 
 * {

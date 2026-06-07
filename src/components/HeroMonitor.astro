@@ -47,233 +47,332 @@ const { ariaLabel = "Show content" } = Astro.props;
   const screenReveal = document.getElementById(
     "hero-screen-reveal"
   ) as HTMLDivElement;
-  const modelUrl = canvas.dataset.modelUrl!;
-  const screenModelUrl = canvas.dataset.screenModelUrl!;
-
-  const START_Z = 2.1;
-  const END_Z = 1.75;
-
-  const scene = new THREE.Scene();
-
-  const camera = new THREE.PerspectiveCamera(
-    100,
-    container.clientWidth / container.clientHeight,
-    0.01,
-    100
+  const monitorMediaQuery = window.matchMedia(
+    "(min-aspect-ratio: 24 / 20) and (min-height: 600px)"
   );
-  camera.position.set(0, 0, START_Z);
+  const shouldRenderMonitor = monitorMediaQuery.matches;
 
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    antialias: true,
-    alpha: true,
+  monitorMediaQuery.addEventListener("change", () => {
+    window.location.reload();
   });
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-  scene.add(ambientLight);
+  if (!shouldRenderMonitor) {
+    screenContent.classList.remove("crt");
+    canvas.setAttribute("aria-hidden", "true");
+    canvas.tabIndex = -1;
+  } else {
+    const modelUrl = canvas.dataset.modelUrl!;
+    const screenModelUrl = canvas.dataset.screenModelUrl!;
 
-  const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-  keyLight.position.set(2, 3, 4);
-  scene.add(keyLight);
+    const START_Z = 2.1;
+    const END_Z = 1.75;
 
-  const fillLight = new THREE.DirectionalLight(0x8899ff, 0.4);
-  fillLight.position.set(-1, -1, -2);
-  scene.add(fillLight);
+    const scene = new THREE.Scene();
 
-  let pivot: THREE.Group | null = null;
-  let screenMaterial: THREE.MeshBasicMaterial | null = null;
-  let introTexture: THREE.CanvasTexture | null = null;
-  let screenTexture: THREE.CanvasTexture | null = null;
-  let textureRefreshTimeout: ReturnType<typeof setTimeout>;
-  let textureRefreshRequest = 0;
-  const startPos = new THREE.Vector3(0, 0, START_Z);
-  const screenCenter = new THREE.Vector3(0, 0, 0);
-  const endPos = new THREE.Vector3(0, 0, END_Z);
+    const camera = new THREE.PerspectiveCamera(
+      100,
+      container.clientWidth / container.clientHeight,
+      0.01,
+      100
+    );
+    camera.position.set(0, 0, START_Z);
 
-  async function captureContent(element: HTMLElement) {
-    await document.fonts.ready;
-    return html2canvas(element, {
-      backgroundColor: null,
-      logging: false,
-      scale: 1,
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
     });
-  }
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.7;
 
-  function refreshScreenTextures() {
-    if (!screenTexture) return;
+    const backgroundMaterial = new THREE.ShaderMaterial({
+      depthWrite: false,
+      uniforms: {
+        time: { value: 0 },
+      },
+      vertexShader: `
+      varying vec2 vUv;
 
-    const request = ++textureRefreshRequest;
-    clearTimeout(textureRefreshTimeout);
-    textureRefreshTimeout = setTimeout(async () => {
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+      fragmentShader: `
+      uniform float time;
+      varying vec2 vUv;
+
+      void main() {
+        float waveOne = sin(vUv.x * 8.0 + time * 0.7) * 0.06;
+        float waveTwo = sin(vUv.x * 13.0 - time * 0.45) * 0.035;
+        float wave = smoothstep(
+          0.38 + waveOne + waveTwo,
+          0.72 + waveOne + waveTwo,
+          vUv.y
+        );
+
+        vec3 deepPurple = vec3(0.025, 0.025, 0.09);
+        vec3 brightPurple = vec3(0.2, 0.18, 0.32);
+        vec3 color = mix(deepPurple, brightPurple, wave);
+
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `,
+    });
+    const background = new THREE.Mesh(
+      new THREE.PlaneGeometry(20, 20),
+      backgroundMaterial
+    );
+    background.position.z = -2;
+    background.renderOrder = -1;
+    scene.add(background);
+
+    scene.add(new THREE.AmbientLight(0x101830, 0.2));
+
+    const keyLight = new THREE.DirectionalLight(0xccffff, 0.8);
+    keyLight.position.set(4, 3, 3);
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0xff6600, 1);
+    rimLight.position.set(-3, 1, -4);
+    scene.add(rimLight);
+
+    const cursorLight = new THREE.DirectionalLight(0x3320ee, 0.7);
+    const cursorLightPosition = new THREE.Vector3(0, 0, 4);
+    cursorLight.position.copy(cursorLightPosition);
+    scene.add(cursorLight);
+    scene.add(cursorLight.target);
+
+    const oppositeCursorLight = new THREE.DirectionalLight(0xff2020, 0.15);
+    const oppositeCursorLightPosition = new THREE.Vector3(0, 0, 4);
+    oppositeCursorLight.position.copy(oppositeCursorLightPosition);
+    scene.add(oppositeCursorLight);
+    scene.add(oppositeCursorLight.target);
+
+    let pivot: THREE.Group | null = null;
+    let screenMaterial: THREE.MeshBasicMaterial | null = null;
+    let introTexture: THREE.CanvasTexture | null = null;
+    let screenTexture: THREE.CanvasTexture | null = null;
+    let textureRefreshTimeout: ReturnType<typeof setTimeout>;
+    let textureRefreshRequest = 0;
+    let spinStart: number | null = null;
+    const finalRotationY = -Math.PI / 2;
+    const entranceRotation = Math.PI / 6;
+    const startPos = new THREE.Vector3(0, 0, START_Z);
+    const screenCenter = new THREE.Vector3(0, 0, 0);
+    const endPos = new THREE.Vector3(0, 0, END_Z);
+
+    async function captureContent(element: HTMLElement) {
+      await document.fonts.ready;
+      return html2canvas(element, {
+        backgroundColor: null,
+        logging: false,
+        scale: 1,
+      });
+    }
+
+    function refreshScreenTextures() {
+      if (!screenTexture) return;
+
+      const request = ++textureRefreshRequest;
+      clearTimeout(textureRefreshTimeout);
+      textureRefreshTimeout = setTimeout(async () => {
+        const [introCanvas, screenCanvas] = await Promise.all([
+          captureContent(introContent),
+          captureContent(screenContent),
+        ]);
+        if (request !== textureRefreshRequest || !screenTexture) return;
+
+        if (introTexture) {
+          introTexture.image = introCanvas;
+          introTexture.needsUpdate = true;
+        }
+        screenTexture.image = screenCanvas;
+        screenTexture.needsUpdate = true;
+        renderer.render(scene, camera);
+      }, 500);
+    }
+
+    function redrawCanvas() {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(width, height);
+      updateCameraFromScroll();
+      renderer.render(scene, camera);
+      refreshScreenTextures();
+    }
+
+    const loader = new GLTFLoader();
+    Promise.all([
+      loader.loadAsync(modelUrl),
+      loader.loadAsync(screenModelUrl),
+    ]).then(async ([gltf, screenGltf]) => {
+      const loaded = gltf.scene;
+
+      // Scale to a predictable unit size
+      const box = new THREE.Box3().setFromObject(loaded);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const modelScale = 2.5 / maxDim;
+      loaded.scale.setScalar(modelScale);
+
+      // Recompute after scale, offset geometry so its center sits at the pivot's origin
+      box.setFromObject(loaded);
+      const center = box.getCenter(new THREE.Vector3());
+      loaded.position.sub(center);
+
+      const screenModel = screenGltf.scene;
+      screenModel.scale.setScalar(modelScale);
+      screenModel.position.sub(center);
+
+      // Pivot group: rotation is now about the geometry center
+      pivot = new THREE.Group();
+      pivot.add(loaded);
+      pivot.rotation.y = finalRotationY - entranceRotation;
+      pivot.position.y = -0.225;
+      scene.add(pivot);
+      spinStart = performance.now();
+
       const [introCanvas, screenCanvas] = await Promise.all([
         captureContent(introContent),
         captureContent(screenContent),
       ]);
-      if (request !== textureRefreshRequest || !screenTexture) return;
 
-      if (introTexture) {
-        introTexture.image = introCanvas;
-        introTexture.needsUpdate = true;
+      introTexture = new THREE.CanvasTexture(introCanvas);
+      introTexture.colorSpace = THREE.SRGBColorSpace;
+      introTexture.flipY = false;
+      screenTexture = new THREE.CanvasTexture(screenCanvas);
+      screenTexture.colorSpace = THREE.SRGBColorSpace;
+      screenTexture.flipY = false;
+
+      screenMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        map: introTexture,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -4,
+        toneMapped: false,
+      });
+
+      screenModel.traverse((object) => {
+        if (object instanceof THREE.Mesh) {
+          object.material = screenMaterial;
+        }
+      });
+      pivot.add(screenModel);
+
+      pivot.updateMatrixWorld(true);
+      setTimeout(() => {
+        if (!screenMaterial || !screenTexture) return;
+
+        screenMaterial.map = screenTexture;
+        screenMaterial.needsUpdate = true;
+      }, 500);
+
+      camera.lookAt(screenCenter);
+      updateCameraFromScroll();
+    });
+
+    let isScrolling = false;
+    let hasReachedBottom = false;
+    let scrollTimeout: ReturnType<typeof setTimeout>;
+
+    const scrollRegion = document.getElementById("hero-scroll-region")!;
+    const scrollContainer = (container.closest<HTMLElement>(".root-wrapper") ??
+      container.closest<HTMLElement>(".screen"))!;
+
+    function updateCameraFromScroll() {
+      const scrollable = Math.max(
+        scrollRegion.clientHeight - container.clientHeight,
+        1
+      );
+      const progress = THREE.MathUtils.clamp(
+        (scrollContainer.scrollTop - scrollRegion.offsetTop) / scrollable,
+        0,
+        1
+      );
+
+      camera.position.lerpVectors(startPos, endPos, progress);
+      camera.lookAt(screenCenter);
+      hasReachedBottom = progress >= 0.999;
+      screenReveal.classList.toggle("is-visible", hasReachedBottom);
+      screenContent.classList.toggle("crt", !hasReachedBottom);
+      canvas.classList.toggle("is-clickable", !hasReachedBottom);
+      canvas.setAttribute("aria-disabled", String(hasReachedBottom));
+      canvas.tabIndex = hasReachedBottom ? -1 : 0;
+    }
+
+    function showReveal() {
+      if (hasReachedBottom) return;
+
+      scrollContainer.scrollTo({
+        behavior: "smooth",
+        top:
+          scrollRegion.offsetTop +
+          scrollRegion.clientHeight -
+          container.clientHeight,
+      });
+    }
+
+    canvas.addEventListener("click", showReveal);
+    canvas.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        showReveal();
       }
-      screenTexture.image = screenCanvas;
-      screenTexture.needsUpdate = true;
+    });
+    container.addEventListener("pointermove", (event) => {
+      const bounds = container.getBoundingClientRect();
+      const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+      const y = -(((event.clientY - bounds.top) / bounds.height) * 2 - 1);
+
+      cursorLightPosition.set(x * 5, y * 3.5, 4);
+      oppositeCursorLightPosition.set(-x * 5, -y * 3.5, 4);
+    });
+    container.addEventListener("pointerleave", () => {
+      cursorLightPosition.set(0, 0, 4);
+      oppositeCursorLightPosition.set(0, 0, 4);
+    });
+
+    scrollContainer.addEventListener("scroll", () => {
+      updateCameraFromScroll();
+      isScrolling = true;
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+      }, 150);
+    });
+
+    const observer = new ResizeObserver(redrawCanvas);
+    observer.observe(container);
+    window.addEventListener("resize", redrawCanvas);
+
+    const animationStart = performance.now();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      backgroundMaterial.uniforms.time.value =
+        (performance.now() - animationStart) / 1000;
+      cursorLight.position.lerp(cursorLightPosition, 0.08);
+      oppositeCursorLight.position.lerp(oppositeCursorLightPosition, 0.08);
+      if (pivot && spinStart !== null) {
+        const progress = Math.min((performance.now() - spinStart) / 700, 1);
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        pivot.rotation.y =
+          finalRotationY - entranceRotation * (1 - easedProgress);
+
+        if (progress === 1) spinStart = null;
+      }
       renderer.render(scene, camera);
-    }, 150);
-  }
-
-  function redrawCanvas() {
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(width, height);
-    updateCameraFromScroll();
-    renderer.render(scene, camera);
-    refreshScreenTextures();
-  }
-
-  const loader = new GLTFLoader();
-  Promise.all([
-    loader.loadAsync(modelUrl),
-    loader.loadAsync(screenModelUrl),
-  ]).then(async ([gltf, screenGltf]) => {
-    const loaded = gltf.scene;
-
-    // Scale to a predictable unit size
-    const box = new THREE.Box3().setFromObject(loaded);
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const modelScale = 2.5 / maxDim;
-    loaded.scale.setScalar(modelScale);
-
-    // Recompute after scale, offset geometry so its center sits at the pivot's origin
-    box.setFromObject(loaded);
-    const center = box.getCenter(new THREE.Vector3());
-    loaded.position.sub(center);
-
-    const screenModel = screenGltf.scene;
-    screenModel.scale.setScalar(modelScale);
-    screenModel.position.sub(center);
-
-    // Pivot group: rotation is now about the geometry center
-    pivot = new THREE.Group();
-    pivot.add(loaded);
-    pivot.rotation.y = -Math.PI / 2;
-    pivot.position.y = -0.225;
-    scene.add(pivot);
-
-    const [introCanvas, screenCanvas] = await Promise.all([
-      captureContent(introContent),
-      captureContent(screenContent),
-    ]);
-
-    introTexture = new THREE.CanvasTexture(introCanvas);
-    introTexture.colorSpace = THREE.SRGBColorSpace;
-    introTexture.flipY = false;
-    screenTexture = new THREE.CanvasTexture(screenCanvas);
-    screenTexture.colorSpace = THREE.SRGBColorSpace;
-    screenTexture.flipY = false;
-
-    screenMaterial = new THREE.MeshBasicMaterial({
-      map: introTexture,
-      polygonOffset: true,
-      polygonOffsetFactor: -1,
-      polygonOffsetUnits: -4,
-    });
-
-    screenModel.traverse((object) => {
-      if (object instanceof THREE.Mesh) {
-        object.material = screenMaterial;
-      }
-    });
-    pivot.add(screenModel);
-
-    pivot.updateMatrixWorld(true);
-    setTimeout(() => {
-      if (!screenMaterial || !screenTexture) return;
-
-      screenMaterial.map = screenTexture;
-      screenMaterial.needsUpdate = true;
-    }, 300);
-
-    camera.lookAt(screenCenter);
-    updateCameraFromScroll();
-  });
-
-  let isScrolling = false;
-  let hasReachedBottom = false;
-  let scrollTimeout: ReturnType<typeof setTimeout>;
-
-  const scrollRegion = document.getElementById("hero-scroll-region")!;
-  const scrollContainer = (container.closest<HTMLElement>(".root-wrapper") ??
-    container.closest<HTMLElement>(".screen"))!;
-
-  function updateCameraFromScroll() {
-    const scrollable = Math.max(
-      scrollRegion.clientHeight - container.clientHeight,
-      1
-    );
-    const progress = THREE.MathUtils.clamp(
-      (scrollContainer.scrollTop - scrollRegion.offsetTop) / scrollable,
-      0,
-      1
-    );
-
-    camera.position.lerpVectors(startPos, endPos, progress);
-    camera.lookAt(screenCenter);
-    hasReachedBottom = progress >= 0.999;
-    screenReveal.classList.toggle("is-visible", hasReachedBottom);
-    screenContent.classList.toggle("crt", !hasReachedBottom);
-    canvas.classList.toggle("is-clickable", !hasReachedBottom);
-    canvas.setAttribute("aria-disabled", String(hasReachedBottom));
-    canvas.tabIndex = hasReachedBottom ? -1 : 0;
-  }
-
-  function showReveal() {
-    if (hasReachedBottom) return;
-
-    scrollContainer.scrollTo({
-      behavior: "smooth",
-      top:
-        scrollRegion.offsetTop +
-        scrollRegion.clientHeight -
-        container.clientHeight,
-    });
-  }
-
-  canvas.addEventListener("click", showReveal);
-  canvas.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      showReveal();
     }
-  });
-
-  scrollContainer.addEventListener("scroll", () => {
-    updateCameraFromScroll();
-    isScrolling = true;
-    clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-      isScrolling = false;
-    }, 150);
-  });
-
-  const observer = new ResizeObserver(redrawCanvas);
-  observer.observe(container);
-  window.addEventListener("resize", redrawCanvas);
-
-  function animate() {
-    requestAnimationFrame(animate);
-    if (!isScrolling && pivot) {
-      // pivot.rotation.y += 0.003;
-    }
-    renderer.render(scene, camera);
+    animate();
   }
-  animate();
 </script>
 
 <style>
@@ -336,5 +435,35 @@ const { ariaLabel = "Show content" } = Astro.props;
 
   #hero-canvas.is-clickable {
     cursor: pointer;
+  }
+
+  @media screen and (aspect-ratio < 23 / 20), screen and (height < 600px) {
+    .hero-scroll-region {
+      height: auto;
+    }
+
+    .hero-intro-content,
+    .hero-monitor {
+      display: none;
+    }
+
+    .hero-screen-reveal {
+      display: block;
+      height: auto;
+      opacity: 1;
+      pointer-events: auto;
+      position: relative;
+    }
+
+    .hero-screen-content {
+      height: auto;
+      min-height: 100vh;
+      overflow: visible;
+    }
+
+    .hero-screen-content.crt::before,
+    .hero-screen-content.crt::after {
+      display: none;
+    }
   }
 </style>

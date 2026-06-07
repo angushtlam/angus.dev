@@ -1,31 +1,52 @@
 ---
-import crtMonitorUrl from "../assets/crt_monitor.glb?url";
+import monitorUrl from "../assets/monitor.glb?url";
+import screenUrl from "../assets/screen.glb?url";
+import "../styles/crt.css";
 ---
 
 <div class="hero-scroll-region" id="hero-scroll-region">
   <div class="hero-monitor" id="hero-monitor">
-    <canvas id="hero-canvas" data-model-url={crtMonitorUrl}></canvas>
+    <canvas
+      id="hero-canvas"
+      data-model-url={monitorUrl}
+      data-screen-model-url={screenUrl}
+      role="button"
+      tabindex="0"
+      aria-label="Show angus.dev"></canvas>
+  </div>
+  <div class="hero-screen-reveal" id="hero-screen-reveal">
+    <div class="hero-screen-content crt" id="hero-screen-content">
+      <h1><a href="https://anguslam.com">angus.dev</a></h1>
+    </div>
   </div>
 </div>
 
 <script>
+  import html2canvas from "html2canvas";
   import * as THREE from "three";
   import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
   const canvas = document.getElementById("hero-canvas") as HTMLCanvasElement;
   const container = document.getElementById("hero-monitor") as HTMLDivElement;
+  const screenContent = document.getElementById(
+    "hero-screen-content"
+  ) as HTMLDivElement;
+  const screenReveal = document.getElementById(
+    "hero-screen-reveal"
+  ) as HTMLDivElement;
   const modelUrl = canvas.dataset.modelUrl!;
+  const screenModelUrl = canvas.dataset.screenModelUrl!;
 
-  const START_Z = 3.0;
-  const END_Z = 1.5;
+  const START_Z = 2.4;
+  const END_Z = 1.6;
 
   const scene = new THREE.Scene();
 
   const camera = new THREE.PerspectiveCamera(
     100,
     container.clientWidth / container.clientHeight,
-    0.1,
-    1000
+    0.01,
+    100
   );
   camera.position.set(0, 0, START_Z);
 
@@ -51,52 +72,120 @@ import crtMonitorUrl from "../assets/crt_monitor.glb?url";
   let pivot: THREE.Group | null = null;
   const startPos = new THREE.Vector3(0, 0, START_Z);
   const screenCenter = new THREE.Vector3(0, 0, 0);
-  let endPos = new THREE.Vector3(0, 0, END_Z);
+  const endPos = new THREE.Vector3(0, 0, END_Z);
 
   const loader = new GLTFLoader();
-  loader.load(modelUrl, (gltf) => {
+  Promise.all([
+    loader.loadAsync(modelUrl),
+    loader.loadAsync(screenModelUrl),
+  ]).then(async ([gltf, screenGltf]) => {
     const loaded = gltf.scene;
 
     // Scale to a predictable unit size
     const box = new THREE.Box3().setFromObject(loaded);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
-    loaded.scale.setScalar(2.5 / maxDim);
+    const modelScale = 2.5 / maxDim;
+    loaded.scale.setScalar(modelScale);
 
     // Recompute after scale, offset geometry so its center sits at the pivot's origin
     box.setFromObject(loaded);
     const center = box.getCenter(new THREE.Vector3());
     loaded.position.sub(center);
 
+    const screenModel = screenGltf.scene;
+    screenModel.scale.setScalar(modelScale);
+    screenModel.position.sub(center);
+
     // Pivot group: rotation is now about the geometry center
     pivot = new THREE.Group();
     pivot.add(loaded);
     pivot.rotation.y = -Math.PI / 2;
-    pivot.position.y = -0.25;
+    pivot.position.y = -0.225;
     scene.add(pivot);
 
-    // End position: 1 unit back from screen along the start→screen direction
-    const approach = screenCenter.clone().sub(startPos).normalize();
-    endPos = screenCenter.clone().sub(approach.multiplyScalar(1.0));
+    await document.fonts.ready;
+    const screenCanvas = await html2canvas(screenContent, {
+      backgroundColor: null,
+      logging: false,
+      scale: 1,
+    });
+
+    const screenTexture = new THREE.CanvasTexture(screenCanvas);
+    screenTexture.colorSpace = THREE.SRGBColorSpace;
+    screenTexture.flipY = false;
+
+    const screenMaterial = new THREE.MeshBasicMaterial({
+      map: screenTexture,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -4,
+    });
+
+    screenModel.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        object.material = screenMaterial;
+      }
+    });
+    pivot.add(screenModel);
+
+    pivot.updateMatrixWorld(true);
 
     camera.lookAt(screenCenter);
+    updateCameraFromScroll();
   });
 
   let isScrolling = false;
+  let hasReachedBottom = false;
   let scrollTimeout: ReturnType<typeof setTimeout>;
 
   const scrollRegion = document.getElementById("hero-scroll-region")!;
   const scrollContainer = (container.closest<HTMLElement>(".root-wrapper") ??
     container.closest<HTMLElement>(".screen"))!;
 
-  scrollContainer.addEventListener("scroll", () => {
-    const scrollable = scrollRegion.clientHeight - container.clientHeight;
-    const progress = Math.min(scrollContainer.scrollTop / scrollable, 1);
+  function updateCameraFromScroll() {
+    const scrollable = Math.max(
+      scrollRegion.clientHeight - container.clientHeight,
+      1
+    );
+    const progress = THREE.MathUtils.clamp(
+      (scrollContainer.scrollTop - scrollRegion.offsetTop) / scrollable,
+      0,
+      1
+    );
 
     camera.position.lerpVectors(startPos, endPos, progress);
-    camera.position.z = Math.max(camera.position.z, END_Z);
     camera.lookAt(screenCenter);
+    hasReachedBottom = progress >= 0.999;
+    screenReveal.classList.toggle("is-visible", hasReachedBottom);
+    screenContent.classList.toggle("crt", !hasReachedBottom);
+    canvas.classList.toggle("is-clickable", !hasReachedBottom);
+    canvas.setAttribute("aria-disabled", String(hasReachedBottom));
+    canvas.tabIndex = hasReachedBottom ? -1 : 0;
+  }
 
+  function showReveal() {
+    if (hasReachedBottom) return;
+
+    scrollContainer.scrollTo({
+      behavior: "smooth",
+      top:
+        scrollRegion.offsetTop +
+        scrollRegion.clientHeight -
+        container.clientHeight,
+    });
+  }
+
+  canvas.addEventListener("click", showReveal);
+  canvas.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      showReveal();
+    }
+  });
+
+  scrollContainer.addEventListener("scroll", () => {
+    updateCameraFromScroll();
     isScrolling = true;
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(() => {
@@ -108,6 +197,7 @@ import crtMonitorUrl from "../assets/crt_monitor.glb?url";
     camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(container.clientWidth, container.clientHeight);
+    updateCameraFromScroll();
   });
   observer.observe(container);
 
@@ -133,6 +223,51 @@ import crtMonitorUrl from "../assets/crt_monitor.glb?url";
     position: sticky;
     top: 0;
     width: 100%;
+    z-index: 1;
+  }
+
+  .hero-screen-reveal {
+    align-items: center;
+    bottom: 0;
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity 600ms ease;
+    width: 100%;
+    z-index: 2;
+  }
+
+  .hero-screen-reveal.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .hero-screen-content {
+    align-items: center;
+    background: #0000ff;
+    color: #ffffff;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  .hero-screen-content h1 {
+    font-family: "Copse", serif;
+    font-size: clamp(2rem, 10vw, 4rem);
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .hero-screen-content a {
+    color: inherit;
+    text-decoration: none;
   }
 
   #hero-canvas {
@@ -141,5 +276,9 @@ import crtMonitorUrl from "../assets/crt_monitor.glb?url";
     inset: 0;
     position: absolute;
     width: 100%;
+  }
+
+  #hero-canvas.is-clickable {
+    cursor: pointer;
   }
 </style>

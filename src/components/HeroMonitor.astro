@@ -52,6 +52,7 @@ const { ariaLabel = "Show content" } = Astro.props;
   );
   const shouldRenderMonitor = monitorMediaQuery.matches;
 
+  // Reload only when crossing the layout boundary so WebGL is fully created or torn down.
   monitorMediaQuery.addEventListener("change", () => {
     window.location.reload();
   });
@@ -87,6 +88,7 @@ const { ariaLabel = "Show content" } = Astro.props;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.7;
 
+    // A large unlit plane provides the animated backdrop behind the monitor.
     const backgroundMaterial = new THREE.ShaderMaterial({
       depthWrite: false,
       uniforms: {
@@ -139,6 +141,7 @@ const { ariaLabel = "Show content" } = Astro.props;
     rimLight.position.set(-3, 1, -4);
     scene.add(rimLight);
 
+    // These two lights mirror each other as the pointer moves across the hero.
     const cursorLight = new THREE.DirectionalLight(0x3320ee, 0.7);
     const cursorLightPosition = new THREE.Vector3(0, 0, 4);
     cursorLight.position.copy(cursorLightPosition);
@@ -164,6 +167,7 @@ const { ariaLabel = "Show content" } = Astro.props;
     const screenCenter = new THREE.Vector3(0, 0, 0);
     const endPos = new THREE.Vector3(0, 0, END_Z);
 
+    // Render DOM content into canvases that can be used as Three.js textures.
     async function captureContent(element: HTMLElement) {
       await document.fonts.ready;
       return html2canvas(element, {
@@ -176,6 +180,7 @@ const { ariaLabel = "Show content" } = Astro.props;
     function refreshScreenTextures() {
       if (!screenTexture) return;
 
+      // Debounce expensive html2canvas captures and discard stale async results.
       const request = ++textureRefreshRequest;
       clearTimeout(textureRefreshTimeout);
       textureRefreshTimeout = setTimeout(async () => {
@@ -251,6 +256,7 @@ const { ariaLabel = "Show content" } = Astro.props;
       screenTexture.colorSpace = THREE.SRGBColorSpace;
       screenTexture.flipY = false;
 
+      // Keep the screen fully bright and independent from scene lights and tone mapping.
       screenMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffff,
         map: introTexture,
@@ -268,6 +274,7 @@ const { ariaLabel = "Show content" } = Astro.props;
       pivot.add(screenModel);
 
       pivot.updateMatrixWorld(true);
+      // Briefly show the test pattern before replacing it with the page texture.
       setTimeout(() => {
         if (!screenMaterial || !screenTexture) return;
 
@@ -279,25 +286,32 @@ const { ariaLabel = "Show content" } = Astro.props;
       updateCameraFromScroll();
     });
 
-    let isScrolling = false;
     let hasReachedBottom = false;
-    let scrollTimeout: ReturnType<typeof setTimeout>;
+    let snapTarget: 0 | 1 | null = null;
+    const REVEAL_THRESHOLD = 0.15;
 
     const scrollRegion = document.getElementById("hero-scroll-region")!;
     const scrollContainer = (container.closest<HTMLElement>(".root-wrapper") ??
       container.closest<HTMLElement>(".screen"))!;
+    let previousScrollTop = scrollContainer.scrollTop;
+    let isScrollingUp = false;
 
-    function updateCameraFromScroll() {
+    function getScrollProgress() {
       const scrollable = Math.max(
         scrollRegion.clientHeight - container.clientHeight,
         1
       );
-      const progress = THREE.MathUtils.clamp(
+      return THREE.MathUtils.clamp(
         (scrollContainer.scrollTop - scrollRegion.offsetTop) / scrollable,
         0,
         1
       );
+    }
 
+    function updateCameraFromScroll() {
+      const progress = getScrollProgress();
+
+      // Move directly toward the modeled screen as the transition region scrolls.
       camera.position.lerpVectors(startPos, endPos, progress);
       camera.lookAt(screenCenter);
       hasReachedBottom = progress >= 0.999;
@@ -308,16 +322,18 @@ const { ariaLabel = "Show content" } = Astro.props;
       canvas.tabIndex = hasReachedBottom ? -1 : 0;
     }
 
-    function showReveal() {
-      if (hasReachedBottom) return;
-
+    function scrollToProgress(progress: 0 | 1) {
+      snapTarget = progress;
       scrollContainer.scrollTo({
         behavior: "smooth",
         top:
           scrollRegion.offsetTop +
-          scrollRegion.clientHeight -
-          container.clientHeight,
+          progress * (scrollRegion.clientHeight - container.clientHeight),
       });
+    }
+
+    function showReveal() {
+      if (!hasReachedBottom) scrollToProgress(1);
     }
 
     canvas.addEventListener("click", showReveal);
@@ -341,12 +357,31 @@ const { ariaLabel = "Show content" } = Astro.props;
     });
 
     scrollContainer.addEventListener("scroll", () => {
+      isScrollingUp = scrollContainer.scrollTop < previousScrollTop;
+      previousScrollTop = scrollContainer.scrollTop;
       updateCameraFromScroll();
-      isScrolling = true;
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        isScrolling = false;
-      }, 150);
+
+      const progress = getScrollProgress();
+      if (snapTarget !== null) {
+        if (
+          (snapTarget === 0 && progress <= 0.001) ||
+          (snapTarget === 1 && progress >= 0.999)
+        ) {
+          snapTarget = null;
+        }
+        return;
+      }
+
+      // Downward scrolling reveals after 15%; upward scrolling returns to the monitor.
+      if (isScrollingUp && progress > 0 && progress < 1) {
+        scrollToProgress(0);
+      } else if (
+        !isScrollingUp &&
+        progress >= REVEAL_THRESHOLD &&
+        progress < 1
+      ) {
+        scrollToProgress(1);
+      }
     });
 
     const observer = new ResizeObserver(redrawCanvas);
@@ -362,6 +397,7 @@ const { ariaLabel = "Show content" } = Astro.props;
       cursorLight.position.lerp(cursorLightPosition, 0.08);
       oppositeCursorLight.position.lerp(oppositeCursorLightPosition, 0.08);
       if (pivot && spinStart !== null) {
+        // Ease the model through its short entrance rotation, ending at its resting angle.
         const progress = Math.min((performance.now() - spinStart) / 700, 1);
         const easedProgress = 1 - Math.pow(1 - progress, 3);
         pivot.rotation.y =

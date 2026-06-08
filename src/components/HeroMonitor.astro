@@ -30,6 +30,14 @@ const { ariaLabel = "Show content" } = Astro.props;
     </div>
   </div>
 </div>
+<button
+  class="hero-animation-toggle"
+  id="hero-animation-toggle"
+  type="button"
+  aria-pressed="false"
+>
+  Reduce animation
+</button>
 
 <script>
   import html2canvas from "html2canvas";
@@ -47,10 +55,28 @@ const { ariaLabel = "Show content" } = Astro.props;
   const screenReveal = document.getElementById(
     "hero-screen-reveal"
   ) as HTMLDivElement;
+  const scrollRegion = document.getElementById("hero-scroll-region")!;
+  const animationToggle = document.getElementById(
+    "hero-animation-toggle"
+  ) as HTMLButtonElement;
+  const animationDisabled =
+    localStorage.getItem("disableHeroMonitorAnimation") === "true";
   const monitorMediaQuery = window.matchMedia(
     "(min-aspect-ratio: 24 / 20) and (min-height: 600px)"
   );
-  const shouldRenderMonitor = monitorMediaQuery.matches;
+  const shouldRenderMonitor = monitorMediaQuery.matches && !animationDisabled;
+
+  animationToggle.ariaPressed = String(animationDisabled);
+  animationToggle.textContent = animationDisabled
+    ? "Enable animation"
+    : "Reduce animation";
+  animationToggle.addEventListener("click", () => {
+    localStorage.setItem(
+      "disableHeroMonitorAnimation",
+      String(!animationDisabled)
+    );
+    window.location.reload();
+  });
 
   // Reload only when crossing the layout boundary so WebGL is fully created or torn down.
   monitorMediaQuery.addEventListener("change", () => {
@@ -58,6 +84,7 @@ const { ariaLabel = "Show content" } = Astro.props;
   });
 
   if (!shouldRenderMonitor) {
+    scrollRegion.classList.add("show-content-directly");
     screenContent.classList.remove("crt");
     canvas.setAttribute("aria-hidden", "true");
     canvas.tabIndex = -1;
@@ -290,7 +317,6 @@ const { ariaLabel = "Show content" } = Astro.props;
     let snapTarget: 0 | 1 | null = null;
     const REVEAL_THRESHOLD = 0.15;
 
-    const scrollRegion = document.getElementById("hero-scroll-region")!;
     const scrollContainer = (container.closest<HTMLElement>(".root-wrapper") ??
       container.closest<HTMLElement>(".screen"))!;
     let previousScrollTop = scrollContainer.scrollTop;
@@ -473,17 +499,70 @@ const { ariaLabel = "Show content" } = Astro.props;
     cursor: pointer;
   }
 
-  @media screen and (aspect-ratio < 23 / 20), screen and (height < 600px) {
-    .hero-scroll-region {
+  .hero-animation-toggle {
+    background: #131313;
+    border: 1px solid #c3cacc;
+    bottom: 12px;
+    color: #c3cacc;
+    cursor: pointer;
+    display: none;
+    font: inherit;
+    left: 12px;
+    padding: 8px 10px;
+    position: fixed;
+    z-index: 10;
+  }
+
+  .hero-animation-toggle:focus-visible {
+    outline: 2px solid #61b2ff;
+    outline-offset: 2px;
+  }
+
+  @media screen and (min-aspect-ratio: 24 / 20) and (min-height: 600px) {
+    .hero-animation-toggle {
+      display: block;
+    }
+  }
+
+  .hero-scroll-region.show-content-directly {
+    height: auto;
+  }
+
+  .hero-scroll-region.show-content-directly .hero-intro-content,
+  .hero-scroll-region.show-content-directly .hero-monitor {
+    display: none;
+  }
+
+  .hero-scroll-region.show-content-directly .hero-screen-reveal {
+    display: block;
+    height: auto;
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+  }
+
+  .hero-scroll-region.show-content-directly .hero-screen-content {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .hero-scroll-region.show-content-directly .hero-screen-content.crt::before,
+  .hero-scroll-region.show-content-directly .hero-screen-content.crt::after {
+    display: none;
+  }
+
+  @media screen and (aspect-ratio < 24 / 20), screen and (height < 600px) {
+    .hero-scroll-region:not(.show-content-directly) {
       height: auto;
     }
 
-    .hero-intro-content,
-    .hero-monitor {
+    .hero-scroll-region:not(.show-content-directly) .hero-intro-content,
+    .hero-scroll-region:not(.show-content-directly) .hero-monitor {
       display: none;
     }
 
-    .hero-screen-reveal {
+    .hero-scroll-region:not(.show-content-directly) .hero-screen-reveal {
       display: block;
       height: auto;
       opacity: 1;
@@ -491,14 +570,16 @@ const { ariaLabel = "Show content" } = Astro.props;
       position: relative;
     }
 
-    .hero-screen-content {
+    .hero-scroll-region:not(.show-content-directly) .hero-screen-content {
       height: auto;
       min-height: 100vh;
       overflow: visible;
     }
 
-    .hero-screen-content.crt::before,
-    .hero-screen-content.crt::after {
+    .hero-scroll-region:not(.show-content-directly)
+      .hero-screen-content.crt::before,
+    .hero-scroll-region:not(.show-content-directly)
+      .hero-screen-content.crt::after {
       display: none;
     }
   }

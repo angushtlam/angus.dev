@@ -151,9 +151,9 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
               <div>
                 <h4>Privacy-first growth</h4>
                 <p>
-                  Implemented consent systems for web and asynchronous
-                  first-party data, enabling a multimillion-dollar paid media
-                  funnel while respecting visitor choices.
+                  Implemented consent systems for web and asynchronous first
+                  party data, enabling a multimillion-dollar paid media funnel
+                  while respecting visitor choices.
                 </p>
               </div>
             </div>
@@ -338,7 +338,7 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
               <a
                 href="https://moodboring.com"
                 target="_blank"
-                rel="noopener noreferrer">Moodboring</a
+                rel="noopener noreferrer">Moodboring ↗︎</a
               >
             </h3>
             <p>
@@ -553,7 +553,7 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
   }
 
   .feature h3 {
-    font-size: clamp(2.5rem, 5vw, 5.5rem);
+    font-size: clamp(2.25rem, 4.5vw, 5rem);
     font-weight: 500;
     letter-spacing: -0.05em;
     margin-bottom: 60px;
@@ -565,19 +565,26 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .feature-grid h4,
-  .skills-grid h3,
-  .project-list h3 {
+  .skills-grid h3 {
     font-size: 1rem;
     margin-bottom: 18px;
     text-transform: uppercase;
   }
 
+  .feature-grid h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+  }
+
   .tag-coming-soon {
     border: 1px solid currentColor;
     font-size: 0.65rem;
+    font-weight: 700;
     letter-spacing: 0.08em;
     padding: 2px 6px;
+    text-transform: uppercase;
     vertical-align: middle;
   }
 
@@ -609,6 +616,13 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
 
   .timeline h3 {
     flex-shrink: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .project-list h3 {
     font-size: 1.2rem;
     font-weight: 700;
     letter-spacing: -0.02em;

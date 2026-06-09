@@ -333,6 +333,7 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     let scrollLocked = false;
     let scrollLockTimeout: ReturnType<typeof setTimeout>;
     const REVEAL_THRESHOLD = 0.15;
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
     const scrollContainer = (container.closest<HTMLElement>(".root-wrapper") ??
       container.closest<HTMLElement>(".screen"))!;
@@ -390,12 +391,14 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
 
     function unlockScroll() {
       scrollLocked = false;
+      if (isTouchDevice) scrollContainer.style.touchAction = "";
       clearTimeout(scrollLockTimeout);
     }
 
     function scrollToProgress(progress: 0 | 1) {
       snapTarget = progress;
       scrollLocked = true;
+      if (isTouchDevice) scrollContainer.style.touchAction = "none";
       clearTimeout(scrollLockTimeout);
       // Safety valve: unlock after 1.5 s in case the smooth scroll is interrupted.
       scrollLockTimeout = setTimeout(unlockScroll, 1500);
@@ -408,13 +411,10 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     }
 
     function preventInputScroll(event: Event) {
-      if (scrollLocked) event.preventDefault();
+      if (isTouchDevice && scrollLocked) event.preventDefault();
     }
 
     scrollContainer.addEventListener("touchmove", preventInputScroll, {
-      passive: false,
-    });
-    scrollContainer.addEventListener("wheel", preventInputScroll, {
       passive: false,
     });
 

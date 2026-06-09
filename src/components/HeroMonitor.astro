@@ -99,8 +99,8 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     const modelUrl = canvas.dataset.modelUrl!;
     const screenModelUrl = canvas.dataset.screenModelUrl!;
 
-    const START_Z = portraitQuery.matches ? 2.6 : 2.1;
-    const END_Z = portraitQuery.matches ? 2 : 1.75;
+    const START_Z = portraitQuery.matches ? 2.5 : 2.1;
+    const END_Z = portraitQuery.matches ? 1.9 : 1.75;
 
     const scene = new THREE.Scene();
 
@@ -330,6 +330,8 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     let hasReachedBottom = false;
     let hasRevealedPage = false;
     let snapTarget: 0 | 1 | null = null;
+    let scrollLocked = false;
+    let scrollLockTimeout: ReturnType<typeof setTimeout>;
     const REVEAL_THRESHOLD = 0.15;
 
     const scrollContainer = (container.closest<HTMLElement>(".root-wrapper") ??
@@ -386,8 +388,17 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       revealTarget?.classList.add("is-visible");
     }
 
+    function unlockScroll() {
+      scrollLocked = false;
+      clearTimeout(scrollLockTimeout);
+    }
+
     function scrollToProgress(progress: 0 | 1) {
       snapTarget = progress;
+      scrollLocked = true;
+      clearTimeout(scrollLockTimeout);
+      // Safety valve: unlock after 1.5 s in case the smooth scroll is interrupted.
+      scrollLockTimeout = setTimeout(unlockScroll, 1500);
       scrollContainer.scrollTo({
         behavior: "smooth",
         top:
@@ -395,6 +406,17 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
           progress * (scrollRegion.clientHeight - container.clientHeight),
       });
     }
+
+    function preventInputScroll(event: Event) {
+      if (scrollLocked) event.preventDefault();
+    }
+
+    scrollContainer.addEventListener("touchmove", preventInputScroll, {
+      passive: false,
+    });
+    scrollContainer.addEventListener("wheel", preventInputScroll, {
+      passive: false,
+    });
 
     function showReveal() {
       if (!hasReachedBottom) scrollToProgress(1);
@@ -438,8 +460,14 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       }
 
       if (snapTarget !== null) {
-        if (snapTarget === 0 && progress <= 0.001) snapTarget = null;
-        if (snapTarget === 1 && progress >= 0.999) revealPage();
+        if (snapTarget === 0 && progress <= 0.001) {
+          snapTarget = null;
+          unlockScroll();
+        }
+        if (snapTarget === 1 && progress >= 0.999) {
+          unlockScroll();
+          revealPage();
+        }
         return;
       }
 

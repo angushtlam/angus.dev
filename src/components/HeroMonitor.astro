@@ -332,7 +332,9 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     let snapTarget: 0 | 1 | null = null;
     let scrollLocked = false;
     let scrollLockTimeout: ReturnType<typeof setTimeout>;
+    let revealCooldownUntil = 0;
     const REVEAL_THRESHOLD = 0.15;
+    const MOBILE_REVEAL_COOLDOWN_MS = 100;
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
     const scrollContainer = (container.closest<HTMLElement>(".root-wrapper") ??
@@ -462,6 +464,9 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       if (snapTarget !== null) {
         if (snapTarget === 0 && progress <= 0.001) {
           snapTarget = null;
+          if (isTouchDevice) {
+            revealCooldownUntil = performance.now() + MOBILE_REVEAL_COOLDOWN_MS;
+          }
           unlockScroll();
         }
         if (snapTarget === 1 && progress >= 0.999) {
@@ -486,6 +491,7 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
         scrollToProgress(0);
       } else if (
         !isScrollingUp &&
+        performance.now() >= revealCooldownUntil &&
         progress >= REVEAL_THRESHOLD &&
         progress < 1
       ) {

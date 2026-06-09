@@ -427,7 +427,7 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
     color: inherit;
     display: flex;
     flex-direction: column;
-    font-size: clamp(1.25rem, 2vw, 2rem);
+    font-size: clamp(1.75rem, 2.5vw, 3rem);
     font-weight: 700;
     letter-spacing: -0.04em;
     line-height: 0.95;
@@ -705,7 +705,7 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
 
     .mobile-wordmark a {
       color: inherit;
-      font-size: 1.25rem;
+      font-size: clamp(1.5rem, 5vw, 2rem);
       font-weight: 700;
       letter-spacing: -0.04em;
       line-height: 1;
@@ -741,6 +741,36 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
 
     .section-heading {
       gap: 20px;
+    }
+
+    .timeline article {
+      display: grid;
+      grid-template-columns: 11ch 1fr;
+      padding: 12px 0;
+    }
+
+    .timeline .date {
+      grid-column: 1;
+      grid-row: 1 / 4;
+    }
+
+    .timeline h3 {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .timeline article > p:not(.date, .meta) {
+      grid-column: 2;
+      grid-row: 2;
+      margin-bottom: 0;
+      text-align: left;
+    }
+
+    .timeline .meta {
+      grid-column: 2;
+      grid-row: 3;
+      margin-left: 0;
+      text-align: left;
     }
   }
 

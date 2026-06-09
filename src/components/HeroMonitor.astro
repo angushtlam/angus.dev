@@ -28,6 +28,10 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       role="button"
       tabindex="0"
       aria-label={ariaLabel}></canvas>
+    <div class="hero-loading" id="hero-loading" aria-live="polite">
+      Wait for it...<br />
+      Promise it's cool.
+    </div>
   </div>
   <div class="hero-screen-hidden-render" id="hero-screen-hidden-render">
     <div class="hero-screen-content crt" id="hero-screen-content">
@@ -320,6 +324,7 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
 
       camera.lookAt(screenCenter);
       updateCameraFromScroll();
+      document.getElementById("hero-loading")!.hidden = true;
     });
 
     let hasReachedBottom = false;
@@ -533,6 +538,24 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
 
   #hero-canvas.is-clickable {
     cursor: pointer;
+  }
+
+  .hero-loading {
+    align-items: center;
+    color: #c3cacc;
+    display: flex;
+    font-size: 0.75rem;
+    font-weight: 700;
+    inset: 0;
+    justify-content: center;
+    letter-spacing: 0.12em;
+    pointer-events: none;
+    position: absolute;
+    text-transform: uppercase;
+  }
+
+  .hero-loading[hidden] {
+    display: none;
   }
 
   .hero-animation-toggle {

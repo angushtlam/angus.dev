@@ -24,7 +24,7 @@ const { ariaLabel = "Show content" } = Astro.props;
       tabindex="0"
       aria-label={ariaLabel}></canvas>
   </div>
-  <div class="hero-screen-reveal" id="hero-screen-reveal">
+  <div class="hero-screen-hidden-render" id="hero-screen-hidden-render">
     <div class="hero-screen-content crt" id="hero-screen-content">
       <slot />
     </div>
@@ -51,9 +51,6 @@ const { ariaLabel = "Show content" } = Astro.props;
   ) as HTMLDivElement;
   const introContent = document.getElementById(
     "hero-intro-content"
-  ) as HTMLDivElement;
-  const screenReveal = document.getElementById(
-    "hero-screen-reveal"
   ) as HTMLDivElement;
   const scrollRegion = document.getElementById("hero-scroll-region")!;
   const animationToggle = document.getElementById(
@@ -84,8 +81,7 @@ const { ariaLabel = "Show content" } = Astro.props;
   });
 
   if (!shouldRenderMonitor) {
-    scrollRegion.classList.add("show-content-directly");
-    screenContent.classList.remove("crt");
+    scrollRegion.hidden = true;
     canvas.setAttribute("aria-hidden", "true");
     canvas.tabIndex = -1;
   } else {
@@ -341,8 +337,6 @@ const { ariaLabel = "Show content" } = Astro.props;
       camera.position.lerpVectors(startPos, endPos, progress);
       camera.lookAt(screenCenter);
       hasReachedBottom = progress >= 0.999;
-      screenReveal.classList.toggle("is-visible", hasReachedBottom);
-      screenContent.classList.toggle("crt", !hasReachedBottom);
       canvas.classList.toggle("is-clickable", !hasReachedBottom);
       canvas.setAttribute("aria-disabled", String(hasReachedBottom));
       canvas.tabIndex = hasReachedBottom ? -1 : 0;
@@ -460,7 +454,7 @@ const { ariaLabel = "Show content" } = Astro.props;
     z-index: 1;
   }
 
-  .hero-screen-reveal {
+  .hero-screen-hidden-render {
     align-items: center;
     bottom: 0;
     display: flex;
@@ -472,12 +466,7 @@ const { ariaLabel = "Show content" } = Astro.props;
     position: absolute;
     transition: opacity 600ms ease;
     width: 100%;
-    z-index: 2;
-  }
-
-  .hero-screen-reveal.is-visible {
-    opacity: 1;
-    pointer-events: auto;
+    z-index: -1;
   }
 
   .hero-screen-content {
@@ -524,62 +513,12 @@ const { ariaLabel = "Show content" } = Astro.props;
     }
   }
 
-  .hero-scroll-region.show-content-directly {
-    height: auto;
-  }
-
-  .hero-scroll-region.show-content-directly .hero-intro-content,
-  .hero-scroll-region.show-content-directly .hero-monitor {
-    display: none;
-  }
-
-  .hero-scroll-region.show-content-directly .hero-screen-reveal {
-    display: block;
-    height: auto;
-    opacity: 1;
-    pointer-events: auto;
-    position: relative;
-  }
-
-  .hero-scroll-region.show-content-directly .hero-screen-content {
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
-  }
-
-  .hero-scroll-region.show-content-directly .hero-screen-content.crt::before,
-  .hero-scroll-region.show-content-directly .hero-screen-content.crt::after {
+  .hero-scroll-region[hidden] {
     display: none;
   }
 
   @media screen and (aspect-ratio < 24 / 20), screen and (height < 600px) {
-    .hero-scroll-region:not(.show-content-directly) {
-      height: auto;
-    }
-
-    .hero-scroll-region:not(.show-content-directly) .hero-intro-content,
-    .hero-scroll-region:not(.show-content-directly) .hero-monitor {
-      display: none;
-    }
-
-    .hero-scroll-region:not(.show-content-directly) .hero-screen-reveal {
-      display: block;
-      height: auto;
-      opacity: 1;
-      pointer-events: auto;
-      position: relative;
-    }
-
-    .hero-scroll-region:not(.show-content-directly) .hero-screen-content {
-      height: auto;
-      min-height: 100vh;
-      overflow: visible;
-    }
-
-    .hero-scroll-region:not(.show-content-directly)
-      .hero-screen-content.crt::before,
-    .hero-scroll-region:not(.show-content-directly)
-      .hero-screen-content.crt::after {
+    .hero-scroll-region {
       display: none;
     }
   }

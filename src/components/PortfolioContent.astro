@@ -1,0 +1,683 @@
+---
+import Footer from "./Footer.astro";
+
+interface Props {
+  darkMode?: boolean;
+}
+
+const { darkMode = false } = Astro.props;
+---
+
+<div class:list={["page-wrapper", { "dark-mode": darkMode }]}>
+  <main class="page-content">
+    <aside class="sidebar">
+      <a class="wordmark" href="/">
+        <span>Angus Lam</span>
+        <span>Software Development</span>
+      </a>
+      <nav class="sidebar-nav" aria-label="Primary">
+        <a href="#work"><span>01</span> Work</a>
+        <a href="#experience"><span>02</span> Experience</a>
+        <a href="#education"><span>03</span> Education</a>
+        <a href="#capabilities"><span>04</span> Capabilities</a>
+        <a href="#projects"><span>05</span> Projects</a>
+      </nav>
+      <div class="sidebar-footer">
+        <p>Senior software engineer</p>
+        <p>New York, NY</p>
+        <div class="sidebar-links">
+          <a href="https://linkedin.com/in/angushtlam">LinkedIn ↗</a>
+          <a href="https://anguslam.com">Personal site ↗</a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="content-column">
+      <header class="intro">
+        <p class="eyebrow">Senior software engineer // New York</p>
+        <h1>
+          I build secure and compliant users-first software for globally
+          ambitious companies.
+        </h1>
+        <div class="intro-footer">
+          <p>
+            Over a decade of experience building scalable, user-facing
+            full-stack applications across cybersecurity, privacy, data
+            protection, and product infrastructure.
+          </p>
+          <p>
+            Currently at <a href="https://stripe.com">Stripe</a>, working on
+            security and privacy for merchants and consumers.
+          </p>
+        </div>
+      </header>
+
+      <section class="section specialties" id="work">
+        <div class="section-heading">
+          <p class="eyebrow">Areas of specialty</p>
+          <h2>Full stack engineering meets product judgment.</h2>
+        </div>
+
+        <article class="feature">
+          <div>
+            <h3>Cybersecurity</h3>
+            <div class="feature-grid">
+              <div>
+                <h4>Software dependency supply chain risk monitoring</h4>
+                <p>
+                  Built and productionized AI agents that monitor third-party
+                  integrations across Stripe's codebase through continuous
+                  integration. Created data pipelines that give security
+                  leadership queryable insight into risk exposure.
+                </p>
+              </div>
+              <div>
+                <h4>Authentication at global scale</h4>
+                <p>
+                  Reduced cross-region dashboard latency by 500ms for millions
+                  of daily requests. Wrote the first service-oriented API key
+                  authentication implementation for Stripe's multi-language
+                  stack.
+                </p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div>
+            <h3>Privacy & data protection</h3>
+            <div class="feature-grid">
+              <div>
+                <h4>Redaction API</h4>
+                <p>
+                  A programmable tool for businesses managing retention
+                  requirements across KYC, tax, and consumer privacy regulations
+                  in multiple jurisdictions.
+                </p>
+              </div>
+              <div>
+                <h4>Privacy Portal</h4>
+                <p>
+                  Automated self-serve tools for consumers to access or delete
+                  their data across Stripe's decentralized, multi-product user
+                  model.
+                </p>
+              </div>
+              <div>
+                <h4>Privacy-first growth</h4>
+                <p>
+                  Implemented consent systems for web and asynchronous
+                  first-party data, enabling a multimillion-dollar paid media
+                  funnel while respecting visitor choices.
+                </p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="feature">
+          <div>
+            <h3>Cross-functional collaboration</h3>
+            <div class="feature-grid">
+              <div>
+                <h4>Regulation into systems</h4>
+                <p>
+                  Partner with business leads and lawyers to translate GDPR,
+                  CCPA, ePrivacy, data-locality, and localization requirements
+                  into technical systems that unblock growth and market access.
+                </p>
+              </div>
+              <div>
+                <h4>UI/UX direction</h4>
+                <p>
+                  Shape visual products with designers and create Figma
+                  dashboard and workflow prototypes when projects are unstaffed,
+                  accelerating frontend delivery by months.
+                </p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="section history" id="experience">
+        <div class="section-heading">
+          <p class="eyebrow">02 / Work history</p>
+          <h2></h2>
+        </div>
+
+        <div class="timeline">
+          <article>
+            <p class="date">2019—2026</p>
+            <h3>Stripe</h3>
+            <p>Software Engineer</p>
+            <p class="meta">San Francisco · New York · Remote</p>
+          </article>
+          <article>
+            <p class="date">2019</p>
+            <h3>Lugg</h3>
+            <p>Software Engineer</p>
+            <p class="meta">New York · Remote</p>
+          </article>
+          <article>
+            <p class="date">2018</p>
+            <h3>Stripe</h3>
+            <p>Software Engineer Intern</p>
+            <p class="meta">San Francisco</p>
+          </article>
+          <article>
+            <p class="date">2017</p>
+            <h3>Optimizely</h3>
+            <p>Software Engineer Intern</p>
+            <p class="meta">San Francisco</p>
+          </article>
+          <article>
+            <p class="date">2017—2018</p>
+            <h3>Pitch + Pivot</h3>
+            <p>Software Engineer</p>
+            <p class="meta">Buffalo · Remote</p>
+          </article>
+          <article>
+            <p class="date">2012—2016</p>
+            <h3>Independent</h3>
+            <p>Game Developer</p>
+            <p class="meta">New York · Remote</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section education" id="education">
+        <div class="section-heading">
+          <p class="eyebrow">03 / Education</p>
+          <h2>Computer science, linguistics, and language models.</h2>
+        </div>
+        <div class="education-grid">
+          <p class="school">University at Buffalo, 2019</p>
+          <div>
+            <p>
+              <strong>Computer Science B.S.</strong><br />
+              GPA 3.637 · magna cum laude
+            </p>
+            <p>
+              <strong>Linguistics B.A.</strong><br />
+              Language, Society & Communication · GPA 3.89 · summa cum laude
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section skills" id="capabilities">
+        <div class="section-heading">
+          <p class="eyebrow">04 / Capabilities</p>
+          <h2>Full-stack engineering from interface to infrastructure.</h2>
+        </div>
+        <div class="skills-grid">
+          <article>
+            <h3>Software</h3>
+            <p>Python, Java, Ruby, JavaScript, HTML, CSS, React</p>
+          </article>
+          <article>
+            <h3>Infrastructure</h3>
+            <p>AWS, Lambda, S3, EC2, SQL, Spark, Kafka, RabbitMQ</p>
+          </article>
+          <article>
+            <h3>Artificial intelligence</h3>
+            <p>
+              Production LLM systems, auditable agents, MCP, skills, and harness
+              engineering
+            </p>
+          </article>
+          <article>
+            <h3>Product leadership</h3>
+            <p>
+              Project direction, user research, staffing, measurement, and
+              data-driven prioritization
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section projects" id="projects">
+        <div class="section-heading">
+          <p class="eyebrow">05 / Selected side projects</p>
+          <h2>Experiments in privacy, transit, games, and creative tools.</h2>
+        </div>
+        <div class="project-list">
+          <article>
+            <h3>Cookiedip</h3>
+            <p>
+              Open-source cookie identification inspired by tools used by
+              privacy regulators.
+            </p>
+          </article>
+          <article>
+            <h3>Trainster</h3>
+            <p>A Flighty-style mobile tracker for train travel.</p>
+          </article>
+          <article>
+            <h3>Moobeam</h3>
+            <p>
+              A browser-based multiplayer, turn-based game inspired by
+              Abducktion.
+            </p>
+          </article>
+          <article>
+            <h3>Moodboring</h3>
+            <p>
+              An online photo editor for making eclectic social mood boards.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="contact">
+        <p class="eyebrow">Let's make something useful.</p>
+        <h2>
+          Available for ambitious software and creative technology projects.
+        </h2>
+        <div class="contact-links">
+          <a href="https://linkedin.com/in/angushtlam">LinkedIn ↗</a>
+          <a href="https://anguslam.com">Personal work ↗</a>
+          <a href="https://angushtlam.substack.com">Writing ↗</a>
+        </div>
+        <Footer />
+      </section>
+    </div>
+  </main>
+</div>
+
+<style>
+  .page-wrapper {
+    --ink: #111111;
+    --paper: #f1f0eb;
+    --accent: #3347ff;
+    --muted: #686868;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  .page-wrapper.dark-mode {
+    --ink: #ff6a00;
+    --paper: #050505;
+    --accent: #ff9a3c;
+    --muted: #c16f36;
+  }
+
+  .page-content {
+    display: grid;
+    grid-template-columns: clamp(240px, 20vw, 340px) minmax(0, 1fr);
+    margin: 0 auto;
+    max-width: 1800px;
+    min-height: 100%;
+  }
+
+  .sidebar {
+    align-self: start;
+    border-right: 1px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: space-between;
+    padding: 32px;
+    position: sticky;
+    top: 0;
+  }
+
+  .wordmark {
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    font-size: clamp(1.25rem, 2vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    text-decoration: none;
+  }
+
+  .sidebar-nav {
+    border-top: 1px solid var(--ink);
+  }
+
+  .sidebar-nav a {
+    align-items: center;
+    border-bottom: 1px solid var(--ink);
+    color: inherit;
+    display: grid;
+    font-size: 0.9rem;
+    grid-template-columns: 32px 1fr;
+    padding: 12px 0;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .sidebar-nav a:hover,
+  .sidebar-links a:hover {
+    color: var(--accent);
+  }
+
+  .sidebar-nav span,
+  .sidebar-footer {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-footer p {
+    margin-bottom: 4px;
+  }
+
+  .sidebar-links {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 24px;
+  }
+
+  .sidebar-links a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .content-column {
+    min-width: 0;
+  }
+
+  .contact-links a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .intro,
+  .section,
+  .contact {
+    padding: clamp(24px, 4vw, 64px);
+  }
+
+  .intro {
+    min-height: 100vh;
+  }
+
+  .eyebrow,
+  .date,
+  .meta {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .intro > .eyebrow {
+    margin-top: clamp(56px, 10vh, 140px);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p {
+    margin-top: 0;
+  }
+
+  h1 {
+    font-size: clamp(3.5rem, 7vw, 8rem);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+    margin: 24px 0 clamp(60px, 12vh, 160px);
+    max-width: 1400px;
+  }
+
+  .intro-footer {
+    display: grid;
+    font-size: clamp(1.15rem, 2vw, 1.8rem);
+    gap: 40px;
+    grid-template-columns: 1fr 1fr;
+    line-height: 1.25;
+    max-width: 900px;
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  .section {
+    border-top: 1px solid var(--ink);
+  }
+
+  .section-heading {
+    display: grid;
+    gap: 40px;
+    grid-template-columns: minmax(180px, 1fr) 3fr;
+    margin-bottom: clamp(80px, 14vw, 200px);
+  }
+
+  .section-heading h2,
+  .contact h2 {
+    font-size: clamp(2.8rem, 5.5vw, 6.5rem);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 0.92;
+    margin: 0;
+  }
+
+  .feature {
+    border-top: 1px solid var(--ink);
+    padding: 32px 0 clamp(80px, 12vw, 160px);
+  }
+
+  .feature h3 {
+    font-size: clamp(2.5rem, 5vw, 5.5rem);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    margin-bottom: 60px;
+  }
+
+  .feature-grid {
+    display: grid;
+    gap: 48px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .feature-grid h4,
+  .skills-grid h3,
+  .project-list h3 {
+    font-size: 1rem;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+
+  .feature-grid p,
+  .skills-grid p,
+  .project-list p,
+  .education-grid {
+    font-size: clamp(1.1rem, 1.5vw, 1.45rem);
+    line-height: 1.45;
+  }
+
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .timeline article,
+  .skills-grid article,
+  .project-list article {
+    border-top: 1px solid var(--ink);
+    min-height: 250px;
+    padding: 24px 24px 48px 0;
+  }
+
+  .timeline h3 {
+    font-size: clamp(2rem, 3vw, 3.5rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    margin: 40px 0 8px;
+  }
+
+  .timeline article > p:not(.date, .meta) {
+    font-size: 1.2rem;
+  }
+
+  .meta {
+    color: var(--muted);
+    margin-top: 32px;
+  }
+
+  .education-grid {
+    border-top: 1px solid var(--ink);
+    display: grid;
+    gap: 40px;
+    grid-template-columns: 1fr 2fr;
+    padding-top: 32px;
+  }
+
+  .school {
+    font-weight: 700;
+  }
+
+  .education-grid div {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .skills-grid,
+  .project-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .skills-grid article,
+  .project-list article {
+    padding-right: 32px;
+  }
+
+  .contact {
+    background: var(--ink);
+    color: var(--paper);
+    min-height: 100vh;
+    padding-top: clamp(80px, 12vw, 180px);
+  }
+
+  .contact h2 {
+    max-width: 1250px;
+  }
+
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    font-size: clamp(1.4rem, 3vw, 3rem);
+    gap: 18px 48px;
+    margin-top: clamp(80px, 14vw, 200px);
+  }
+
+  .contact-links a {
+    border-bottom: 1px solid currentColor;
+  }
+
+  @media screen and (max-width: 1100px) {
+    .page-content {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+      border-bottom: 1px solid var(--ink);
+      border-right: 0;
+      display: grid;
+      gap: 32px;
+      grid-template-columns: 1fr 2fr;
+      height: auto;
+      padding: 24px;
+      position: relative;
+    }
+
+    .sidebar-nav {
+      border-top: 0;
+      display: grid;
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .sidebar-nav a {
+      border-bottom: 0;
+      border-top: 1px solid var(--ink);
+      display: flex;
+      gap: 8px;
+    }
+
+    .sidebar-footer {
+      text-align: right;
+    }
+
+    .sidebar-links {
+      align-items: flex-end;
+    }
+
+    .intro-footer,
+    .section-heading,
+    .feature,
+    .education-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .section-heading {
+      gap: 20px;
+    }
+
+    .timeline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .skills-grid,
+    .project-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    .sidebar {
+      grid-template-columns: 1fr;
+      padding: 20px;
+    }
+
+    .sidebar-footer {
+      text-align: left;
+    }
+
+    .sidebar-links {
+      align-items: flex-start;
+    }
+
+    .sidebar-nav {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .intro,
+    .section,
+    .contact {
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 16vw, 5rem);
+    }
+
+    .intro-footer,
+    .feature-grid,
+    .timeline,
+    .education-grid div,
+    .skills-grid,
+    .project-list {
+      grid-template-columns: 1fr;
+    }
+
+    .timeline article,
+    .skills-grid article,
+    .project-list article {
+      min-height: 0;
+    }
+  }
+</style>

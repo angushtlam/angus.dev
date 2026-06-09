@@ -2,11 +2,82 @@
 import HeroMonitor from "../components/HeroMonitor.astro";
 import PortfolioContent from "../components/PortfolioContent.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/crt.css";
 ---
 
 <BaseLayout title="Angus Lam — Senior Software Engineer">
   <HeroMonitor ariaLabel="Show Angus Lam's portfolio">
-    <PortfolioContent darkMode />
+    <PortfolioContent exposeSectionIds={false} />
   </HeroMonitor>
-  <PortfolioContent />
+  <div class="portfolio-content" id="portfolio-content">
+    <PortfolioContent />
+  </div>
 </BaseLayout>
+
+<script>
+  const scrollContainer = document.querySelector<HTMLElement>(".screen");
+  const portfolioContent = document.getElementById("portfolio-content");
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  );
+  let scrollEndTimeout: ReturnType<typeof setTimeout>;
+
+  portfolioContent?.addEventListener("click", (event) => {
+    const link = (event.target as HTMLElement).closest<HTMLAnchorElement>(
+      'a[href^="#"]'
+    );
+    if (!link || !scrollContainer) return;
+
+    const target = document.querySelector<HTMLElement>(link.hash);
+    if (!target) return;
+
+    event.preventDefault();
+    const top =
+      scrollContainer.scrollTop +
+      target.getBoundingClientRect().top -
+      scrollContainer.getBoundingClientRect().top;
+    history.pushState(null, "", link.hash);
+    scrollContainer.scrollTo({
+      behavior: prefersReducedMotion.matches ? "auto" : "smooth",
+      top,
+    });
+  });
+
+  scrollContainer?.addEventListener("scroll", () => {
+    if (!portfolioContent) return;
+
+    const scrollBounds = scrollContainer.getBoundingClientRect();
+    const portfolioBounds = portfolioContent.getBoundingClientRect();
+    const isPortfolioVisible =
+      portfolioBounds.bottom > scrollBounds.top &&
+      portfolioBounds.top < scrollBounds.bottom;
+
+    portfolioContent.classList.toggle("crt", isPortfolioVisible);
+    clearTimeout(scrollEndTimeout);
+    scrollEndTimeout = setTimeout(() => {
+      portfolioContent.classList.remove("crt");
+    }, 150);
+  });
+</script>
+
+<style>
+  .portfolio-content {
+    position: relative;
+  }
+
+  .portfolio-content.crt::before {
+    opacity: 0.01;
+  }
+
+  .portfolio-content.crt {
+    text-shadow:
+      -1px 0 rgba(255, 0, 0, 0.22),
+      1px 0 rgba(0, 120, 255, 0.22);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portfolio-content.crt::after {
+      animation: none;
+    }
+  }
+</style>

@@ -548,7 +548,7 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
   }
 
   .feature {
-    border-top: 1px solid var(--ink);
+    border-top: 1px dotted var(--muted);
     padding: 32px 0 clamp(80px, 12vw, 160px);
   }
 
@@ -603,7 +603,7 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
 
   .timeline article {
     align-items: baseline;
-    border-top: 1px solid var(--ink);
+    border-top: 1px dotted var(--muted);
     display: flex;
     gap: 24px;
     padding: 20px 0;
@@ -634,12 +634,12 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
   }
 
   .skills-grid article {
-    border-top: 1px solid var(--ink);
+    border-top: 1px dotted var(--muted);
     padding: 16px 0;
   }
 
   .project-list article {
-    border-top: 1px solid var(--ink);
+    border-top: 1px dotted var(--muted);
     padding: 16px 0;
   }
 
@@ -649,7 +649,8 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
   }
 
   .education-grid {
-    border-top: 1px solid var(--ink);
+    border-top: 1px dotted var(--muted);
+
     display: grid;
     gap: 40px;
     grid-template-columns: 1fr 2fr;
@@ -740,6 +741,10 @@ const { darkMode = false, exposeSectionIds = true } = Astro.props;
       letter-spacing: 0.12em;
       padding: 12px 0;
       text-transform: uppercase;
+    }
+
+    .mobile-index a:nth-last-child(-n + 2) {
+      border-bottom: 0;
     }
 
     .mobile-index a:hover {

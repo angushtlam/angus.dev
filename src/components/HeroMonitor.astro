@@ -6,12 +6,17 @@ import "../styles/crt.css";
 
 interface Props {
   ariaLabel?: string;
+  revealTargetId?: string;
 }
 
-const { ariaLabel = "Show content" } = Astro.props;
+const { ariaLabel = "Show content", revealTargetId } = Astro.props;
 ---
 
-<div class="hero-scroll-region" id="hero-scroll-region">
+<div
+  class="hero-scroll-region"
+  id="hero-scroll-region"
+  data-reveal-target-id={revealTargetId}
+>
   <div class="hero-intro-content" id="hero-intro-content">
     <CrtDatabaseScreen />
   </div>
@@ -53,6 +58,9 @@ const { ariaLabel = "Show content" } = Astro.props;
     "hero-intro-content"
   ) as HTMLDivElement;
   const scrollRegion = document.getElementById("hero-scroll-region")!;
+  const revealTarget = scrollRegion.dataset.revealTargetId
+    ? document.getElementById(scrollRegion.dataset.revealTargetId)
+    : null;
   const animationToggle = document.getElementById(
     "hero-animation-toggle"
   ) as HTMLButtonElement;
@@ -82,6 +90,7 @@ const { ariaLabel = "Show content" } = Astro.props;
 
   if (!shouldRenderMonitor) {
     scrollRegion.hidden = true;
+    revealTarget?.classList.remove("is-awaiting-reveal");
     canvas.setAttribute("aria-hidden", "true");
     canvas.tabIndex = -1;
   } else {
@@ -310,6 +319,7 @@ const { ariaLabel = "Show content" } = Astro.props;
     });
 
     let hasReachedBottom = false;
+    let hasRevealedPage = false;
     let snapTarget: 0 | 1 | null = null;
     const REVEAL_THRESHOLD = 0.15;
 
@@ -318,16 +328,29 @@ const { ariaLabel = "Show content" } = Astro.props;
     let previousScrollTop = scrollContainer.scrollTop;
     let isScrollingUp = false;
 
+    function getScrollTopForElement(element: HTMLElement) {
+      return (
+        scrollContainer.scrollTop +
+        element.getBoundingClientRect().top -
+        scrollContainer.getBoundingClientRect().top
+      );
+    }
+
     function getScrollProgress() {
       const scrollable = Math.max(
         scrollRegion.clientHeight - container.clientHeight,
         1
       );
       return THREE.MathUtils.clamp(
-        (scrollContainer.scrollTop - scrollRegion.offsetTop) / scrollable,
+        (scrollContainer.scrollTop - getScrollTopForElement(scrollRegion)) /
+          scrollable,
         0,
         1
       );
+    }
+
+    function getHeroBottom() {
+      return getScrollTopForElement(scrollRegion) + scrollRegion.clientHeight;
     }
 
     function updateCameraFromScroll() {
@@ -342,12 +365,24 @@ const { ariaLabel = "Show content" } = Astro.props;
       canvas.tabIndex = hasReachedBottom ? -1 : 0;
     }
 
+    function revealPage() {
+      if (hasRevealedPage) return;
+
+      hasRevealedPage = true;
+      snapTarget = null;
+      scrollContainer.scrollTo({
+        behavior: "auto",
+        top: getHeroBottom(),
+      });
+      revealTarget?.classList.add("is-visible");
+    }
+
     function scrollToProgress(progress: 0 | 1) {
       snapTarget = progress;
       scrollContainer.scrollTo({
         behavior: "smooth",
         top:
-          scrollRegion.offsetTop +
+          getScrollTopForElement(scrollRegion) +
           progress * (scrollRegion.clientHeight - container.clientHeight),
       });
     }
@@ -382,13 +417,30 @@ const { ariaLabel = "Show content" } = Astro.props;
       updateCameraFromScroll();
 
       const progress = getScrollProgress();
+      if (
+        isScrollingUp &&
+        hasRevealedPage &&
+        scrollContainer.scrollTop < getHeroBottom() - 1
+      ) {
+        hasRevealedPage = false;
+        revealTarget?.classList.remove("is-visible");
+        scrollToProgress(0);
+        return;
+      }
+
       if (snapTarget !== null) {
-        if (
-          (snapTarget === 0 && progress <= 0.001) ||
-          (snapTarget === 1 && progress >= 0.999)
-        ) {
-          snapTarget = null;
-        }
+        if (snapTarget === 0 && progress <= 0.001) snapTarget = null;
+        if (snapTarget === 1 && progress >= 0.999) revealPage();
+        return;
+      }
+
+      if (isScrollingUp && progress < 0.999 && hasRevealedPage) {
+        hasRevealedPage = false;
+        revealTarget?.classList.remove("is-visible");
+      }
+
+      if (progress >= 0.999) {
+        revealPage();
         return;
       }
 

@@ -365,14 +365,6 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       return getScrollTopForElement(scrollRegion) + scrollRegion.clientHeight;
     }
 
-    function getUpwardReturnThreshold() {
-      if (isTouchDevice) {
-        return getHeroBottom() - window.innerHeight * 0.95;
-      }
-
-      return getHeroBottom() - 1;
-    }
-
     function updateCameraFromScroll() {
       const progress = getScrollProgress();
 
@@ -457,9 +449,10 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
 
       const progress = getScrollProgress();
       if (
+        !isTouchDevice &&
         isScrollingUp &&
         hasRevealedPage &&
-        scrollContainer.scrollTop < getUpwardReturnThreshold()
+        scrollContainer.scrollTop < getHeroBottom() - 1
       ) {
         hasRevealedPage = false;
         revealTarget?.classList.remove("is-visible");
@@ -495,12 +488,7 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       }
 
       // Downward scrolling reveals after 15%; upward scrolling returns to the monitor.
-      if (
-        isScrollingUp &&
-        progress > 0 &&
-        progress < 1 &&
-        (!isTouchDevice || !hasRevealedPage)
-      ) {
+      if (!isTouchDevice && isScrollingUp && progress > 0 && progress < 1) {
         scrollToProgress(0);
       } else if (
         !isScrollingUp &&

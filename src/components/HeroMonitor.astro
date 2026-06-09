@@ -66,10 +66,8 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
   ) as HTMLButtonElement;
   const animationDisabled =
     localStorage.getItem("disableHeroMonitorAnimation") === "true";
-  const monitorMediaQuery = window.matchMedia(
-    "(min-aspect-ratio: 24 / 20) and (min-height: 600px)"
-  );
-  const shouldRenderMonitor = monitorMediaQuery.matches && !animationDisabled;
+  const portraitQuery = window.matchMedia("(orientation: portrait)");
+  const shouldRenderMonitor = !animationDisabled;
 
   animationToggle.ariaPressed = String(animationDisabled);
   animationToggle.textContent = animationDisabled
@@ -83,8 +81,8 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     window.location.reload();
   });
 
-  // Reload only when crossing the layout boundary so WebGL is fully created or torn down.
-  monitorMediaQuery.addEventListener("change", () => {
+  // Reload when orientation changes so the model rotation is initialised correctly.
+  portraitQuery.addEventListener("change", () => {
     window.location.reload();
   });
 
@@ -97,8 +95,8 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     const modelUrl = canvas.dataset.modelUrl!;
     const screenModelUrl = canvas.dataset.screenModelUrl!;
 
-    const START_Z = 2.1;
-    const END_Z = 1.75;
+    const START_Z = portraitQuery.matches ? 2.3 : 2.1;
+    const END_Z = portraitQuery.matches ? 1.9 : 1.75;
 
     const scene = new THREE.Scene();
 
@@ -192,9 +190,6 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     let screenTexture: THREE.CanvasTexture | null = null;
     let textureRefreshTimeout: ReturnType<typeof setTimeout>;
     let textureRefreshRequest = 0;
-    let spinStart: number | null = null;
-    const finalRotationY = -Math.PI / 2;
-    const entranceRotation = Math.PI / 6;
     const startPos = new THREE.Vector3(0, 0, START_Z);
     const screenCenter = new THREE.Vector3(0, 0, 0);
     const endPos = new THREE.Vector3(0, 0, END_Z);
@@ -271,22 +266,31 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       // Pivot group: rotation is now about the geometry center
       pivot = new THREE.Group();
       pivot.add(loaded);
-      pivot.rotation.y = finalRotationY - entranceRotation;
-      pivot.position.y = -0.225;
+      pivot.rotation.x = portraitQuery.matches ? -Math.PI / 2 : 0;
+      pivot.rotation.y = portraitQuery.matches ? 0 : -Math.PI / 2;
+      pivot.rotation.z = portraitQuery.matches ? -Math.PI / 2 : 0;
+      pivot.position.y = portraitQuery.matches ? 0 : -0.225;
+      pivot.position.x = portraitQuery.matches ? -0.2 : 0;
       scene.add(pivot);
-      spinStart = performance.now();
 
       const [introCanvas, screenCanvas] = await Promise.all([
         captureContent(introContent),
         captureContent(screenContent),
       ]);
 
+      const textureRotation = portraitQuery.matches ? -Math.PI / 2 : 0;
+
       introTexture = new THREE.CanvasTexture(introCanvas);
       introTexture.colorSpace = THREE.SRGBColorSpace;
       introTexture.flipY = false;
+      introTexture.rotation = textureRotation;
+      introTexture.center.set(0.5, 0.5);
+
       screenTexture = new THREE.CanvasTexture(screenCanvas);
       screenTexture.colorSpace = THREE.SRGBColorSpace;
       screenTexture.flipY = false;
+      screenTexture.rotation = textureRotation;
+      screenTexture.center.set(0.5, 0.5);
 
       // Keep the screen fully bright and independent from scene lights and tone mapping.
       screenMaterial = new THREE.MeshBasicMaterial({
@@ -468,15 +472,6 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
         (performance.now() - animationStart) / 1000;
       cursorLight.position.lerp(cursorLightPosition, 0.08);
       oppositeCursorLight.position.lerp(oppositeCursorLightPosition, 0.08);
-      if (pivot && spinStart !== null) {
-        // Ease the model through its short entrance rotation, ending at its resting angle.
-        const progress = Math.min((performance.now() - spinStart) / 700, 1);
-        const easedProgress = 1 - Math.pow(1 - progress, 3);
-        pivot.rotation.y =
-          finalRotationY - entranceRotation * (1 - easedProgress);
-
-        if (progress === 1) spinStart = null;
-      }
       renderer.render(scene, camera);
     }
     animate();
@@ -546,9 +541,9 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     bottom: 12px;
     color: #c3cacc;
     cursor: pointer;
-    display: none;
+    display: block;
     font: inherit;
-    left: 12px;
+    right: 12px;
     padding: 8px 10px;
     position: fixed;
     z-index: 10;
@@ -559,19 +554,7 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     outline-offset: 2px;
   }
 
-  @media screen and (min-aspect-ratio: 24 / 20) and (min-height: 600px) {
-    .hero-animation-toggle {
-      display: block;
-    }
-  }
-
   .hero-scroll-region[hidden] {
     display: none;
-  }
-
-  @media screen and (aspect-ratio < 24 / 20), screen and (height < 600px) {
-    .hero-scroll-region {
-      display: none;
-    }
   }
 </style>

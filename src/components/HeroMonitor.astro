@@ -332,6 +332,7 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
     let snapTarget: 0 | 1 | null = null;
     let scrollLocked = false;
     let scrollLockTimeout: ReturnType<typeof setTimeout>;
+    let isTouching = false;
     const REVEAL_THRESHOLD = 0.15;
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
@@ -418,6 +419,23 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       passive: false,
     });
 
+    scrollContainer.addEventListener("touchstart", () => {
+      isTouching = true;
+    });
+
+    scrollContainer.addEventListener("touchend", () => {
+      isTouching = false;
+      if (snapTarget !== null) return;
+      const progress = getScrollProgress();
+      if (isScrollingUp && progress > 0 && progress < 1) {
+        if (hasRevealedPage) {
+          hasRevealedPage = false;
+          revealTarget?.classList.remove("is-visible");
+        }
+        scrollToProgress(0);
+      }
+    });
+
     function showReveal() {
       if (!hasReachedBottom) scrollToProgress(1);
     }
@@ -473,7 +491,7 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       }
 
       if (
-        !isTouchDevice &&
+        (!isTouchDevice || !isTouching) &&
         isScrollingUp &&
         progress < 0.999 &&
         hasRevealedPage
@@ -488,6 +506,7 @@ const { ariaLabel = "Show content", revealTargetId } = Astro.props;
       }
 
       // Downward scrolling reveals after 15%; upward scrolling returns to the monitor.
+      // On touch devices, the upward snap is deferred to touchend to avoid mid-scroll jumping.
       if (!isTouchDevice && isScrollingUp && progress > 0 && progress < 1) {
         scrollToProgress(0);
       } else if (

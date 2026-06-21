@@ -140,6 +140,23 @@
   text-decoration: underline;
 }
 
+.page-wrapper a:hover,
+.page-wrapper a:focus-visible {
+  background-image: linear-gradient(
+    90deg,
+    #8a7f00 0 16.66%,
+    #007a7a 16.66% 33.33%,
+    #007800 33.33% 50%,
+    #8a008a 50% 66.66%,
+    #a00000 66.66% 83.33%,
+    #0000a0 83.33% 100%
+  );
+  background-size: 160px 100%;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 .page-wrapper .section {
   border-top: 1px solid var(--ink);
 }
@@ -343,7 +360,7 @@
   }
 
   .page-wrapper .mobile-index a:hover {
-    color: var(--accent);
+    color: transparent;
   }
 
   .page-wrapper .intro-footer,

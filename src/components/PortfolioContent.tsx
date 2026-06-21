@@ -53,7 +53,7 @@ export default function PortfolioContent({
             <a href="/">Angus Lam Software Development</a>
           </div>
           <header className="intro">
-            <p className="eyebrow">Senior software engineer // New York</p>
+            <p className="eyebrow">Senior software engineer from New York</p>
             <h1>
               I build secure and compliant users-first software products for
               globally ambitious companies.

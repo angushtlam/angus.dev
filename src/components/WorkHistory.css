@@ -24,6 +24,32 @@
   margin: 0;
 }
 
+.page-wrapper .timeline .experience {
+  align-items: baseline;
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0 24px;
+}
+
+.page-wrapper .timeline .experience h3,
+.page-wrapper .timeline .experience p {
+  margin-bottom: 0;
+}
+
+.page-wrapper .timeline .experience > p:not(.meta) {
+  font-size: 1.2rem;
+}
+
+.page-wrapper .timeline .blog-link {
+  flex: 0 0 100%;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
 .page-wrapper .timeline article > p:not(.date, .meta) {
   font-size: 1.2rem;
 }
@@ -43,6 +69,14 @@
   .page-wrapper .timeline h3 {
     grid-column: 2;
     grid-row: 1;
+  }
+
+  .page-wrapper .timeline .experience {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 24px;
   }
 
   .page-wrapper .timeline article > p:not(.date, .meta) {

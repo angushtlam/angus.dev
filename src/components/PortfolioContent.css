@@ -243,7 +243,16 @@
   font-weight: 700;
 }
 
-.page-wrapper .education-grid div {
+.page-wrapper .profile-link {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+.page-wrapper .degree-list {
   display: grid;
   gap: 24px;
   grid-template-columns: 1fr 1fr;
@@ -371,7 +380,7 @@
 
   .page-wrapper .intro-footer,
   .page-wrapper .feature-grid,
-  .page-wrapper .education-grid div {
+  .page-wrapper .degree-list {
     grid-template-columns: 1fr;
   }
 }

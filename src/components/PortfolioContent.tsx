@@ -210,8 +210,18 @@ export default function PortfolioContent({
               </h2>
             </div>
             <div className="education-grid">
-              <p className="school">University at Buffalo, 2019</p>
-              <div>
+              <div className="school">
+                <p>University at Buffalo, 2019</p>
+                <a
+                  className="profile-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://www.buffalo.edu/ubit/about.host.html/content/shared/www/ubit/public/modules/faces-and-voices/angus-lam.detail.html"
+                >
+                  Profile ↗︎
+                </a>
+              </div>
+              <div className="degree-list">
                 <p>
                   <strong>Computer Science B.S.</strong>
                   <br />
@@ -220,7 +230,7 @@ export default function PortfolioContent({
                 <p>
                   <strong>Linguistics B.A.</strong>
                   <br />
-                  Language, Society & Communication · GPA 3.89 · summa cum laude
+                  Language, Society & Communication · GPA 3.89
                 </p>
               </div>
             </div>

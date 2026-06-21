@@ -48,31 +48,51 @@ export default function WorkHistory({
         </article>
         <article>
           <p className="date">2018</p>
-          <h3>
+          <div className="experience">
+            <h3>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://stripe.com"
+              >
+                Stripe ↗︎
+              </a>
+            </h3>
+            <p>Software Engineer Intern</p>
+            <p className="meta">San Francisco</p>
             <a
+              className="blog-link"
               target="_blank"
               rel="noopener noreferrer"
-              href="https://stripe.com"
+              href="https://angushtlam.substack.com/p/my-stripe-internship-2018"
             >
-              Stripe ↗︎
+              Internship project ↗︎
             </a>
-          </h3>
-          <p>Software Engineer Intern</p>
-          <p className="meta">San Francisco</p>
+          </div>
         </article>
         <article>
           <p className="date">2017</p>
-          <h3>
+          <div className="experience">
+            <h3>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://optimizely.com"
+              >
+                Optimizely ↗︎
+              </a>
+            </h3>
+            <p>Software Engineer Intern</p>
+            <p className="meta">San Francisco</p>
             <a
+              className="blog-link"
               target="_blank"
               rel="noopener noreferrer"
-              href="https://optimizely.com"
+              href="https://angushtlam.substack.com/p/my-internship-project-at-optimizely"
             >
-              Optimizely ↗︎
+              Internship project ↗︎
             </a>
-          </h3>
-          <p>Software Engineer Intern</p>
-          <p className="meta">San Francisco</p>
+          </div>
         </article>
         <article>
           <p className="date">2017—2018</p>

@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import Favicon from "../assets/favicon.ico";
+import Logo from "../assets/logo.png";
 
 interface Props {
   title: string;
@@ -8,6 +9,10 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+const siteUrl = Astro.site ?? new URL("https://angus.dev");
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const socialImageUrl = new URL(Logo.src, siteUrl).toString();
+const siteName = "Angus Lam";
 ---
 
 <!doctype html>
@@ -19,6 +24,19 @@ const { title, description } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImageUrl} />
+    <meta property="profile:first_name" content="Angus" />
+    <meta property="profile:last_name" content="Lam" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    <meta name="twitter:image" content={socialImageUrl} />
   </head>
   <body>
     <main class="screen">
